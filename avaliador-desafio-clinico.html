@@ -57,6 +57,8 @@ body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--font-body)
 body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:10;background:var(--surface)}
 button{font:inherit;color:inherit;cursor:pointer;font-family:var(--font-ui)}
 .wrap{max-width:640px;margin:0 auto;padding:16px 16px 120px}
+body.has-dock .wrap{padding-bottom:calc(168px + env(safe-area-inset-bottom,0px))}
+body.has-dock-tall .wrap{padding-bottom:calc(280px + env(safe-area-inset-bottom,0px))}
 html,body{min-height:100%}
 body.is-auth{
   display:flex;
@@ -148,10 +150,29 @@ body.is-auth .wrap{
 .badge{display:inline-block;margin-left:6px;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.03em;color:var(--bad);background:var(--badbg);border-radius:999px;padding:2px 7px;vertical-align:middle}
 .filters{display:grid;gap:12px}
 .filters .row{display:grid;grid-template-columns:1fr 1fr;gap:10px}
-.toolbar{display:grid;gap:10px;margin-top:14px}
+.toolbar{display:grid;gap:10px;margin:0 0 14px}
+.toolbar.toolbar-top{grid-template-columns:1fr 1fr}
+@media (max-width:420px){.toolbar.toolbar-top{grid-template-columns:1fr}}
+.pager{display:flex;align-items:center;justify-content:center;gap:10px;margin-top:12px;flex-wrap:wrap}
+.pager[hidden]{display:none!important}
+.pager .page-info{font-size:13px;font-weight:600;color:var(--muted);min-width:7em;text-align:center}
 .hist .meta{display:block;color:var(--muted);font-size:12px;margin-top:2px}
 .hist .row1{display:flex;align-items:center;gap:6px;min-width:0}
 .hist .row1 strong{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.hist .h-main{flex:1;min-width:0;display:flex;align-items:center;gap:12px;background:none;border:0;padding:0;text-align:left;color:inherit;font:inherit;width:auto}
+.hist .h-actions{display:flex;flex-wrap:wrap;gap:6px;flex:none;justify-content:flex-end}
+.hist .h-actions .iconbtn{height:32px;padding:0 10px;font-size:12px}
+.hist .h-actions .iconbtn.danger{color:var(--bad)}
+.hist .h-actions .iconbtn.danger:hover{border-color:var(--bad);background:var(--badbg)}
+@media (max-width:520px){
+  .hist .h{flex-wrap:wrap;align-items:flex-start}
+  .hist .h-actions{width:100%;justify-content:flex-start;margin-top:2px}
+}
+#rEdit.hidden,#rView.hidden,#rActionsView.hidden,#rActionsEdit.hidden{display:none!important}
+.edit-crit{display:grid;gap:10px}
+.edit-crit .ec{border:1px solid var(--line);border-radius:10px;padding:10px 12px;background:var(--surface2)}
+.edit-crit .ec .et{font-size:13px;font-weight:700;margin:0 0 8px}
+.edit-crit .seg{grid-template-columns:1fr 1fr 1fr}
 #vAuth.enter-in .logo,
 #vAuth.enter-in h1,
 #vAuth.enter-in .lead,
@@ -255,15 +276,20 @@ details .in p{margin:0 0 10px}
 .toggle input{width:22px;height:22px;accent-color:var(--red)}
 .toggle div{flex:1;font-size:14px}
 .toggle strong{display:block;font-size:15px}
-/* bottom bar */
-.bar{position:fixed;left:0;right:0;bottom:0;z-index:6;background:var(--surface);border-top:1px solid var(--line);padding:10px 16px calc(10px + env(safe-area-inset-bottom,0px))}
+/* bottom bar / floating action docks */
+.bar,.dock{position:fixed;left:0;right:0;bottom:0;z-index:6;background:var(--surface);border-top:1px solid var(--line);padding:10px 16px calc(10px + env(safe-area-inset-bottom,0px));box-shadow:0 -8px 24px rgba(0,0,0,.06)}
 .bar-in{max-width:640px;margin:0 auto;display:flex;align-items:center;gap:12px}
+.dock-in{max-width:640px;margin:0 auto;display:grid;gap:8px}
+.dock-in.cols-2{grid-template-columns:1fr 1fr}
 .score{font-variant-numeric:tabular-nums}
 .score .v{font-size:26px;font-weight:800;line-height:1}
 .score .l{font-size:12px;color:var(--muted)}
 .prog{flex:1;height:8px;border-radius:99px;background:var(--surface2);overflow:hidden;border:1px solid var(--line)}
 .prog i{display:block;height:100%;background:var(--red);width:0;transition:width .25s}
 .bar .btn{width:auto;padding:13px 18px}
+.bar .bar-sec{max-width:640px;margin:8px auto 0}
+.bar .bar-sec .btn{width:100%}
+.dock .btn{width:100%}
 /* result */
 .big{text-align:center;padding:26px 16px}
 .big .nota{font-size:84px;font-weight:800;line-height:1;font-variant-numeric:tabular-nums;color:var(--red)}
@@ -279,15 +305,15 @@ details .in p{margin:0 0 10px}
 .pill.ok{background:var(--okbg);color:var(--ok)}
 .pill.mid{background:var(--midbg);color:var(--mid)}
 .pill.bad{background:var(--badbg);color:var(--bad)}
-.hist .h{display:flex;align-items:center;gap:12px;padding:12px 0;border-bottom:1px solid var(--line);width:100%;background:none;border-left:0;border-right:0;border-top:0;text-align:left}
+.hist .h{display:flex;align-items:center;gap:10px;padding:12px 0;border-bottom:1px solid var(--line);width:100%;flex-wrap:nowrap}
 .hist .h:last-child{border-bottom:0}
-.hist .h div{flex:1;min-width:0}
+.hist .h-main div{flex:1;min-width:0}
 .hist .h strong{display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.hist .h small{color:var(--muted)}
-.hist .h .g{font-size:22px;font-weight:800;font-variant-numeric:tabular-nums}
+.hist .h .g{font-size:22px;font-weight:800;font-variant-numeric:tabular-nums;flex:none}
 .empty{color:var(--muted);font-size:14px;text-align:center;padding:12px}
 .stack{display:grid;gap:10px;margin-top:14px}
-.toast{position:fixed;left:50%;bottom:calc(90px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:var(--ink);color:var(--bg);padding:10px 16px;border-radius:12px;font-weight:600;font-size:14px;opacity:0;transition:opacity .2s;pointer-events:none;z-index:20}
+.stack.stack-top{margin:0 0 14px}
+.toast{position:fixed;left:50%;bottom:calc(110px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:var(--ink);color:var(--bg);padding:10px 16px;border-radius:12px;font-weight:600;font-size:14px;opacity:0;transition:opacity .2s;pointer-events:none;z-index:20}
 .toast.show{opacity:1}
 .modal-root{position:fixed;inset:0;z-index:50;display:flex;align-items:center;justify-content:center;padding:20px;padding-bottom:calc(20px + env(safe-area-inset-bottom,0px))}
 .modal-root[hidden]{display:none!important}
@@ -469,8 +495,6 @@ select:focus{border-color:var(--red);box-shadow:0 0 0 3px var(--red-soft)}
         <div class="in"><div class="stations" id="stList"></div></div>
       </details>
     </div>
-    <button class="btn" id="btnIniciar" disabled>Iniciar avaliação</button>
-    <div class="stack"><button class="btn ghost" id="btnVoltarWelcome">Voltar</button></div>
   </section>
 
   <!-- TELA 2: avaliação -->
@@ -505,11 +529,11 @@ select:focus{border-color:var(--red);box-shadow:0 0 0 3px var(--red-soft)}
       <label class="f" for="inObs">Observações</label>
       <textarea id="inObs" placeholder="Pontos fortes, falhas, conduta na intercorrência…"></textarea>
     </div>
-    <button class="btn ghost" id="btnCancelar">Cancelar avaliação</button>
   </section>
 
-  <!-- TELA 3: resultado -->
+  <!-- TELA 3: resultado / edição -->
   <section id="vRes" class="hidden">
+    <div id="rView">
     <div class="card big">
       <div class="nota" id="rNota">0,0</div>
       <div class="de">de 10</div>
@@ -520,17 +544,36 @@ select:focus{border-color:var(--red);box-shadow:0 0 0 3px var(--red-soft)}
     </div>
     <div class="card"><div class="res" id="rList"></div></div>
     <div class="card hidden" id="rObsCard"><p class="sub">Observações</p><div id="rObs" style="white-space:pre-wrap;font-size:15px"></div></div>
-    <div class="stack">
-      <button class="btn teal" id="btnCopiar1">Copiar resultado</button>
-      <button class="btn" id="btnNovo">Avaliar próximo aluno</button>
+    </div>
+    <div id="rEdit" class="hidden">
+      <div class="page-head">
+        <h1>Editar avaliação</h1>
+        <p class="lead" id="rEditLead">Ajuste os dados e os critérios.</p>
+      </div>
+      <div class="card">
+        <label class="f" for="editNome">Nome do aluno</label>
+        <input type="text" id="editNome" autocomplete="off">
+        <div style="height:12px"></div>
+        <label class="f" for="editRA">RA (opcional)</label>
+        <input type="text" id="editRA" autocomplete="off" inputmode="numeric">
+      </div>
+      <div class="card">
+        <p class="sub" style="margin-bottom:10px">Critérios · nota <strong id="editNotaLive">0,0</strong></p>
+        <div class="edit-crit" id="editCrit"></div>
+      </div>
+      <label class="toggle"><input type="checkbox" id="editCritFlag"><div><strong>Erro crítico</strong>Risco grave ao paciente (não altera a nota automaticamente).</div></label>
+      <div class="card">
+        <label class="f" for="editObs">Observações</label>
+        <textarea id="editObs" placeholder="Observações…"></textarea>
+      </div>
     </div>
   </section>
 
   <!-- TELA 4: histórico -->
   <section id="vHist" class="hidden">
     <div class="page-head">
-      <h1>Histórico</h1>
-      <p class="lead" id="hLead">Avaliações salvas na nuvem.</p>
+    <h1>Histórico</h1>
+      <p class="lead" id="hLead">Somente as suas avaliações · mais recentes primeiro.</p>
     </div>
     <div class="card filters">
       <label class="f" for="inFiltro">Buscar aluno ou RA</label>
@@ -560,19 +603,52 @@ select:focus{border-color:var(--red);box-shadow:0 0 0 3px var(--red-soft)}
       </div>
     </div>
     <div class="card hist" id="hList"></div>
-    <div class="toolbar">
-      <button class="btn teal" id="btnBaixar">Baixar planilha</button>
-      <button class="btn ghost" id="btnCopiarTodos">Copiar tudo (Excel)</button>
-      <button class="btn ghost" id="btnLimpar">Limpar cache do sorteio</button>
-    </div>
+    <nav class="pager" id="hPager" hidden aria-label="Paginação do histórico">
+      <button type="button" class="iconbtn" id="btnHistPrev">Anterior</button>
+      <span class="page-info" id="hPageInfo">1 / 1</span>
+      <button type="button" class="iconbtn" id="btnHistNext">Próxima</button>
+    </nav>
   </section>
 </main>
 
-<div class="bar hidden" id="bar"><div class="bar-in">
-  <div class="score"><div class="v" id="bNota">0,0</div><div class="l" id="bProg">0 de 10</div></div>
-  <div class="prog"><i id="bFill"></i></div>
-  <button class="btn" id="btnFinalizar" disabled>Finalizar</button>
-</div></div>
+<div class="dock hidden" id="dockStart">
+  <div class="dock-in cols-2">
+    <button class="btn ghost" id="btnVoltarWelcome">Voltar</button>
+    <button class="btn" id="btnIniciar" disabled>Iniciar avaliação</button>
+  </div>
+</div>
+<div class="dock hidden" id="rActionsView">
+  <div class="dock-in cols-2">
+    <button class="btn teal" id="btnCopiar1">Copiar resultado</button>
+    <button class="btn" id="btnNovo">Avaliar próximo</button>
+    <button class="btn ghost hidden" id="btnEditarRes">Editar</button>
+    <button class="btn ghost hidden" id="btnExcluirRes" style="color:var(--bad)">Excluir</button>
+    <button class="btn ghost" id="btnVoltarHistRes" style="grid-column:1/-1">Voltar ao histórico</button>
+  </div>
+</div>
+<div class="dock hidden" id="rActionsEdit">
+  <div class="dock-in">
+    <button class="btn teal" id="btnSalvarEdit">Salvar alterações</button>
+    <button class="btn ghost" id="btnCancelarEdit">Cancelar</button>
+  </div>
+</div>
+<div class="dock hidden" id="dockHist">
+  <div class="dock-in cols-2">
+    <button class="btn ghost" id="btnLimpar">Limpar cache do sorteio</button>
+    <button class="btn teal" id="btnBaixar">Baixar planilha</button>
+    <button class="btn ghost" id="btnVoltarHistHome" style="grid-column:1/-1">Voltar</button>
+  </div>
+</div>
+<div class="bar hidden" id="bar">
+  <div class="bar-in">
+    <div class="score"><div class="v" id="bNota">0,0</div><div class="l" id="bProg">0 de 10</div></div>
+    <div class="prog"><i id="bFill"></i></div>
+    <button class="btn" id="btnFinalizar" disabled>Finalizar</button>
+  </div>
+  <div class="bar-sec">
+    <button class="btn ghost" id="btnCancelar">Cancelar avaliação</button>
+  </div>
+</div>
 <div class="toast" id="toast"></div>
 <div class="modal-root" id="modal" hidden>
   <div class="modal-backdrop" id="modalBackdrop"></div>
@@ -587,6 +663,7 @@ select:focus{border-color:var(--red);box-shadow:0 0 0 3px var(--red-soft)}
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
 <script>
 const SB_URL = "https://rwjkydxrozpyvvtooeiy.supabase.co";
 const SB_ANON = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJ3amt5ZHhyb3pweXZ2dG9vZWl5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTQ1MTQwOTQsImV4cCI6MjExMDA5MDA5NH0.QXFnwcC9NiYXl0tJmiJ0JkTcAiS9FtitvfjG_iFLfcM";
@@ -724,6 +801,8 @@ let meProf = null; // {id, nome_completo, email}
 let histFiltro = "";
 let histFiltroSt = "";
 let histFiltroCrit = "";
+const HIST_PER_PAGE = 8;
+let histPage = 1;
 let currentView = "vAuth";
 
 function toast(m){ const t=$("toast"); t.textContent=m; t.classList.add("show"); setTimeout(()=>t.classList.remove("show"),1800); }
@@ -849,13 +928,13 @@ function renderWelcome(){
     return;
   }
   box.innerHTML = recent.map((r,i)=>`<button type="button" class="h" data-i="${i}"><div><strong>${r.nome}</strong><small>Estação ${r.st} · ${new Date(r.data).toLocaleString("pt-BR",{dateStyle:"short",timeStyle:"short"})}${r.crit?` <span class="badge">Crítico</span>`:""}</small></div><span class="g">${fmt(r.nota)}</span></button>`).join("");
-  box.querySelectorAll(".h").forEach(b=>b.onclick=()=>showResult(recent[+b.dataset.i]));
+  box.querySelectorAll(".h").forEach(b=>b.onclick=()=>showResult(recent[+b.dataset.i], true));
 }
 function show(v){
   currentView = v;
   closeMenus();
   ["vAuth","vWelcome","vStart","vEval","vRes","vHist"].forEach(x=>$(x).classList.toggle("hidden", x!==v));
-  $("bar").classList.toggle("hidden", v!=="vEval");
+  syncDocks(v);
   $("wrap").classList.toggle("is-auth", v==="vAuth");
   document.body.classList.toggle("is-auth", v==="vAuth");
   if(v==="vAuth") playAuthEnter();
@@ -1038,7 +1117,9 @@ async function enterProfArea(){
 async function openHistorico(){
   if(!sessionUser){ show("vAuth"); return; }
   if(currentView==="vEval"){ toast("Finalize ou cancele a avaliação primeiro"); return; }
+  histPage = 1;
   $("hList").innerHTML = `<div class="empty">Carregando…</div>`;
+  $("hPager").hidden = true;
   show("vHist");
   await fetchHist();
   renderHist();
@@ -1054,6 +1135,7 @@ function startNovaAvaliacao(){
 $("btnWelcomeNova").onclick = ()=> startNovaAvaliacao();
 $("btnWelcomeHist").onclick = ()=> openHistorico();
 $("btnVoltarWelcome").onclick = ()=> show("vWelcome");
+$("btnVoltarHistHome").onclick = ()=> goHome();
 $("btnBrand").onclick = ()=> goHome();
 $("navHome").onclick = ()=> goHome();
 $("drawerHome").onclick = ()=> goHome();
@@ -1268,7 +1350,7 @@ $("btnFinalizar").onclick = async ()=>{
 async function finalize(porTempo){
   stopTimer();
   const s = ST[cur.st-1];
-  const rec = {id:Date.now(), data:new Date().toISOString(), profId:cur.profId, prof:cur.prof, nome:cur.nome, ra:cur.ra, st:s.n, stNome:s.nome,
+  const rec = {id:null, data:new Date().toISOString(), profId:cur.profId, prof:cur.prof, nome:cur.nome, ra:cur.ra, st:s.n, stNome:s.nome,
     ans:{...cur.ans}, nota:calc(cur.ans), crit:cur.crit, obs:cur.obs.trim(), tempo:elapsed,
     dur:durMin, porTempo:!!porTempo, avaliados:Object.keys(cur.ans).length};
   hist.unshift(rec);
@@ -1290,8 +1372,14 @@ async function finalize(porTempo){
       encerrada_por_tempo: !!porTempo,
       criterios_avaliados: rec.avaliados
     };
-    const { error } = await sb.from("avaliacoes").insert(payload);
+    const { data, error } = await sb.from("avaliacoes").insert(payload).select("id,created_at").single();
     if(error) throw error;
+    if(data){
+      rec.id = data.id;
+      rec.data = data.created_at || rec.data;
+      lastRec = rec;
+      setResOwnerActions(rec);
+    }
     if(!porTempo) toast("Avaliação salva na nuvem");
   }catch(e){
     console.error(e);
@@ -1301,20 +1389,160 @@ async function finalize(porTempo){
 
 /* ---------- Resultado ---------- */
 let lastRec = null;
-function showResult(r){
+let editDraft = null;
+let resFromHist = false;
+
+function isCloudId(id){
+  return typeof id === "string" && /^[0-9a-f-]{36}$/i.test(id);
+}
+function canManageRec(r){
+  return !!(r && sessionUser && r.profId === sessionUser.id && isCloudId(r.id));
+}
+function setResOwnerActions(r){
+  const own = canManageRec(r);
+  $("btnEditarRes").classList.toggle("hidden", !own);
+  $("btnExcluirRes").classList.toggle("hidden", !own);
+}
+function setResMode(edit){
+  $("rView").classList.toggle("hidden", edit);
+  $("rEdit").classList.toggle("hidden", !edit);
+  $("rActionsView").classList.toggle("hidden", edit);
+  $("rActionsEdit").classList.toggle("hidden", !edit);
+  syncDockPadding();
+}
+function syncDocks(v){
+  $("bar").classList.toggle("hidden", v!=="vEval");
+  $("dockStart").classList.toggle("hidden", v!=="vStart");
+  $("dockHist").classList.toggle("hidden", v!=="vHist");
+  if(v!=="vRes"){
+    $("rActionsView").classList.add("hidden");
+    $("rActionsEdit").classList.add("hidden");
+  }
+  syncDockPadding(v);
+}
+function syncDockPadding(v){
+  v = v || currentView;
+  const has = v==="vStart" || v==="vEval" || v==="vRes" || v==="vHist";
+  const tall = v==="vRes" || v==="vEval" || v==="vHist";
+  document.body.classList.toggle("has-dock", has);
+  document.body.classList.toggle("has-dock-tall", tall);
+}
+function showResult(r, fromHist){
   lastRec = r;
+  editDraft = null;
+  resFromHist = !!fromHist;
   $("rNota").textContent = fmt(r.nota);
   $("rNota").style.color = r.nota>=7 ? "var(--ok)" : r.nota>=5 ? "var(--mid)" : "var(--bad)";
   $("rWho").textContent = r.nome + (r.ra ? " · RA " + r.ra : "");
   $("rProf").textContent = r.prof ? "Avaliador: " + r.prof : "";
   $("rSt").textContent = `Estação ${r.st} · ${r.stNome} · ${new Date(r.data).toLocaleString("pt-BR",{dateStyle:"short",timeStyle:"short"})}`;
-  const n = r.avaliados ?? Object.keys(r.ans).length;
+  const n = r.avaliados ?? Object.keys(r.ans||{}).length;
   $("rFlag").innerHTML = (r.crit ? `<span class="flag">Erro crítico registrado</span> ` : "")
     + (r.porTempo ? `<span class="flag time">Encerrada por tempo · ${n} de 10 avaliados</span>` : (n<10 ? `<span class="flag time">${n} de 10 avaliados</span>` : ""));
   $("rList").innerHTML = BASE.map((b,i)=>{const v=r.ans[b.k];return `<div class="r"><b>${i+1}</b><span>${b.t}</span><em class="pill ${v||"na"}" style="font-style:normal">${lbl(v)}</em></div>`;}).join("");
-  $("rObsCard").classList.toggle("hidden", !r.obs);
-  $("rObs").textContent = r.obs;
+  const obsTxt = (r.obs == null ? "" : String(r.obs)).trim();
+  $("rObsCard").classList.toggle("hidden", !obsTxt);
+  $("rObs").textContent = obsTxt;
+  setResOwnerActions(r);
+  $("btnVoltarHistRes").classList.toggle("hidden", !resFromHist);
   show("vRes");
+  setResMode(false);
+}
+
+function updateEditNotaLive(){
+  if(!editDraft) return;
+  $("editNotaLive").textContent = fmt(calc(editDraft.ans));
+}
+function renderEditCrit(){
+  $("editCrit").innerHTML = BASE.map((b,i)=>{
+    const v = editDraft.ans[b.k] || "";
+    return `<div class="ec" data-k="${b.k}"><div class="et">${i+1}. ${b.t}</div><div class="seg">
+      <button type="button" data-v="ok" class="${v==="ok"?"on ok":""}">Correto<span>1</span></button>
+      <button type="button" data-v="mid" class="${v==="mid"?"on mid":""}">Parcial<span>0,5</span></button>
+      <button type="button" data-v="bad" class="${v==="bad"?"on bad":""}">Incorreto<span>0</span></button>
+    </div></div>`;
+  }).join("");
+  $("editCrit").querySelectorAll(".ec").forEach(row=>{
+    row.querySelectorAll("button").forEach(btn=>{
+      btn.onclick = ()=>{
+        editDraft.ans[row.dataset.k] = btn.dataset.v;
+        row.querySelectorAll("button").forEach(x=>x.className="");
+        btn.className = "on " + btn.dataset.v;
+        updateEditNotaLive();
+      };
+    });
+  });
+  updateEditNotaLive();
+}
+function startEditRec(r, fromHist){
+  if(!canManageRec(r)){ toast("Só é possível editar suas próprias avaliações"); return; }
+  if(fromHist !== undefined) resFromHist = !!fromHist;
+  lastRec = r;
+  editDraft = {
+    nome: r.nome || "",
+    ra: r.ra || "",
+    crit: !!r.crit,
+    obs: r.obs || "",
+    ans: {...(r.ans||{})}
+  };
+  $("editNome").value = editDraft.nome;
+  $("editRA").value = editDraft.ra;
+  $("editCritFlag").checked = editDraft.crit;
+  $("editObs").value = editDraft.obs;
+  $("rEditLead").textContent = `Estação ${r.st} · ${r.stNome}`;
+  renderEditCrit();
+  show("vRes");
+  setResMode(true);
+}
+async function saveEditRec(){
+  if(!lastRec || !editDraft || !canManageRec(lastRec)) return;
+  const nome = $("editNome").value.trim();
+  if(!nome){ toast("Informe o nome do aluno"); return; }
+  const ans = {...editDraft.ans};
+  const nota = calc(ans);
+  const crit = $("editCritFlag").checked;
+  const obs = $("editObs").value.trim();
+  const ra = $("editRA").value.trim();
+  const avaliados = Object.keys(ans).length;
+  $("btnSalvarEdit").disabled = true;
+  try{
+    const { error } = await sb.from("avaliacoes").update({
+      aluno_nome: nome,
+      aluno_ra: ra || null,
+      respostas: ans,
+      nota,
+      erro_critico: crit,
+      observacoes: obs || null,
+      criterios_avaliados: avaliados
+    }).eq("id", lastRec.id);
+    if(error) throw error;
+    Object.assign(lastRec, { nome, ra, ans, nota, crit, obs, avaliados });
+    const i = hist.findIndex(h=>h.id===lastRec.id);
+    if(i>=0) hist[i] = {...lastRec};
+    toast("Avaliação atualizada");
+    showResult(lastRec, resFromHist);
+  }catch(e){
+    console.error(e);
+    toast(e.message || "Não foi possível salvar");
+  }finally{
+    $("btnSalvarEdit").disabled = false;
+  }
+}
+async function deleteRec(r, after){
+  if(!canManageRec(r)){ toast("Só é possível excluir suas próprias avaliações"); return; }
+  if(!await dlg.confirm(`Excluir a avaliação de ${r.nome}? Esta ação não pode ser desfeita.`, { title: "Excluir avaliação", danger: true })) return;
+  try{
+    const { error } = await sb.from("avaliacoes").delete().eq("id", r.id);
+    if(error) throw error;
+    hist = hist.filter(h=>h.id!==r.id);
+    if(lastRec && lastRec.id===r.id) lastRec = null;
+    toast("Avaliação excluída");
+    if(typeof after === "function") after();
+    else { show("vHist"); renderHist(); if(currentView==="vWelcome") renderWelcome(); }
+  }catch(e){
+    console.error(e);
+    toast(e.message || "Não foi possível excluir");
+  }
 }
 function recText(r){
   const lines = [`Desafio Clínico UNIRP`,`Avaliador: ${r.prof||"—"}`,`Aluno: ${r.nome}${r.ra?" (RA "+r.ra+")":""}`,`Estação ${r.st}: ${r.stNome}`,`Nota: ${fmt(r.nota)} / 10${r.crit?" — ERRO CRÍTICO":""}`,""];
@@ -1337,6 +1565,15 @@ $("btnNovo").onclick = ()=>{
   show("vStart");
   setTimeout(()=>$("inNome").focus(),100);
 };
+$("btnEditarRes").onclick = ()=> lastRec && startEditRec(lastRec);
+$("btnExcluirRes").onclick = ()=> lastRec && deleteRec(lastRec, ()=>{ show("vHist"); renderHist(); });
+$("btnVoltarHistRes").onclick = ()=>{ show("vHist"); renderHist(); };
+$("btnSalvarEdit").onclick = ()=> saveEditRec();
+$("btnCancelarEdit").onclick = ()=> lastRec && showResult(lastRec, resFromHist);
+$("editNome").oninput = e=>{ if(editDraft) editDraft.nome = e.target.value; };
+$("editRA").oninput = e=>{ if(editDraft) editDraft.ra = e.target.value; };
+$("editObs").oninput = e=>{ if(editDraft) editDraft.obs = e.target.value; };
+$("editCritFlag").onchange = e=>{ if(editDraft) editDraft.crit = e.target.checked; };
 
 /* ---------- Histórico ---------- */
 function mapAvaliacao(row){
@@ -1360,8 +1597,10 @@ function mapAvaliacao(row){
   };
 }
 async function fetchHist(){
+  if(!sessionUser){ hist = []; return; }
   const { data, error } = await sb.from("avaliacoes")
     .select("*,professores(nome_completo)")
+    .eq("professor_id", sessionUser.id)
     .order("created_at", { ascending: false });
   if(error){ console.error(error); toast("Erro ao carregar histórico"); hist = []; return; }
   hist = (data||[]).map(mapAvaliacao);
@@ -1374,35 +1613,91 @@ function histFiltrado(){
     if(histFiltroCrit==="1" && !r.crit) return false;
     if(histFiltroCrit==="0" && r.crit) return false;
     return true;
-  });
+  }).sort((a,b)=> new Date(b.data) - new Date(a.data));
+}
+function histPageCount(total){
+  return Math.max(1, Math.ceil(total / HIST_PER_PAGE));
+}
+function clampHistPage(total){
+  histPage = Math.min(Math.max(1, histPage), histPageCount(total || 1));
 }
 function renderHist(){
   const list = histFiltrado();
   const filtered = !!(histFiltro.trim() || histFiltroSt || histFiltroCrit);
+  const pages = histPageCount(list.length || 1);
+  clampHistPage(list.length);
+  const start = (histPage - 1) * HIST_PER_PAGE;
+  const pageItems = list.slice(start, start + HIST_PER_PAGE);
   $("hLead").textContent = hist.length
-    ? `${hist.length} ${hist.length===1?"avaliação":"avaliações"} na nuvem${filtered?` · ${list.length} no filtro`:""}.`
-    : "Nenhuma avaliação salva ainda.";
-  if(!list.length){ $("hList").innerHTML = `<div class="empty">${hist.length?"Nenhum resultado para o filtro.":"Nenhuma avaliação salva ainda."}</div>`; return; }
-  $("hList").innerHTML = list.map((r,i)=>`<button type="button" class="h" data-i="${i}"><div><div class="row1"><strong>${r.nome}</strong>${r.crit?`<span class="badge">Crítico</span>`:""}</div><span class="meta">RA ${r.ra||"—"} · Estação ${r.st} · ${r.prof||"—"}</span><span class="meta">${new Date(r.data).toLocaleString("pt-BR",{dateStyle:"short",timeStyle:"short"})}</span></div><span class="g">${fmt(r.nota)}</span></button>`).join("");
-  $("hList").querySelectorAll(".h").forEach(b=>b.onclick=()=>showResult(list[+b.dataset.i]));
+    ? `${hist.length} ${hist.length===1?"avaliação sua":"avaliações suas"} · mais recentes primeiro${filtered?` · ${list.length} no filtro`:""}.`
+    : "Você ainda não tem avaliações salvas.";
+  const pager = $("hPager");
+  if(!list.length){
+    $("hList").innerHTML = `<div class="empty">${hist.length?"Nenhum resultado para o filtro.":"Você ainda não tem avaliações salvas."}</div>`;
+    pager.hidden = true;
+    return;
+  }
+  pager.hidden = list.length <= HIST_PER_PAGE;
+  $("hPageInfo").textContent = `Pág. ${histPage} / ${pages}`;
+  $("btnHistPrev").disabled = histPage <= 1;
+  $("btnHistNext").disabled = histPage >= pages;
+  $("hList").innerHTML = pageItems.map((r,i)=>{
+    const idx = start + i;
+    const manage = canManageRec(r);
+    const actions = manage
+      ? `<div class="h-actions">
+          <button type="button" class="iconbtn" data-act="open" data-i="${idx}">Ver</button>
+          <button type="button" class="iconbtn" data-act="edit" data-i="${idx}">Editar</button>
+          <button type="button" class="iconbtn danger" data-act="del" data-i="${idx}">Excluir</button>
+        </div>`
+      : `<div class="h-actions"><button type="button" class="iconbtn" data-act="open" data-i="${idx}">Ver</button></div>`;
+    return `<div class="h" data-i="${idx}"><div class="h-main"><div><div class="row1"><strong>${r.nome}</strong>${r.crit?`<span class="badge">Crítico</span>`:""}</div><span class="meta">RA ${r.ra||"—"} · Estação ${r.st}</span><span class="meta">${new Date(r.data).toLocaleString("pt-BR",{dateStyle:"short",timeStyle:"short"})}</span></div><span class="g">${fmt(r.nota)}</span></div>${actions}</div>`;
+  }).join("");
+  $("hList").querySelectorAll("[data-act]").forEach(b=>{
+    b.onclick = ev=>{
+      ev.stopPropagation();
+      const r = list[+b.dataset.i];
+      if(!r) return;
+      if(b.dataset.act==="open") showResult(r, true);
+      else if(b.dataset.act==="edit") startEditRec(r, true);
+      else if(b.dataset.act==="del") deleteRec(r, ()=>{ renderHist(); if(currentView==="vWelcome") renderWelcome(); });
+    };
+  });
 }
-$("inFiltro").addEventListener("input", e=>{ histFiltro = e.target.value; renderHist(); });
-$("inFiltroSt").addEventListener("change", e=>{ histFiltroSt = e.target.value; renderHist(); });
-$("inFiltroCrit").addEventListener("change", e=>{ histFiltroCrit = e.target.value; renderHist(); });
+function setHistFiltroAndRender(updater){
+  updater();
+  histPage = 1;
+  renderHist();
+}
+$("inFiltro").addEventListener("input", e=> setHistFiltroAndRender(()=>{ histFiltro = e.target.value; }));
+$("inFiltroSt").addEventListener("change", e=> setHistFiltroAndRender(()=>{ histFiltroSt = e.target.value; }));
+$("inFiltroCrit").addEventListener("change", e=> setHistFiltroAndRender(()=>{ histFiltroCrit = e.target.value; }));
+$("btnHistPrev").onclick = ()=>{ if(histPage>1){ histPage--; renderHist(); window.scrollTo(0,0); } };
+$("btnHistNext").onclick = ()=>{ histPage++; renderHist(); window.scrollTo(0,0); };
 function tabela(){
   const head = ["Data","Professor","Aluno","RA","Estação","Tempo (min)",...BASE.map((b,i)=>`${i+1}. ${b.t}`),"Critérios avaliados","Nota","Encerrada por tempo","Erro crítico","Observações"];
-  const rows = histFiltrado().slice().reverse().map(r=>[
+  const rows = histFiltrado().map(r=>[
     new Date(r.data).toLocaleString("pt-BR",{dateStyle:"short",timeStyle:"short"}), r.prof||"", r.nome, r.ra||"", `E${r.st} - ${r.stNome}`, r.dur||15,
     ...BASE.map(b=>lbl(r.ans[b.k])), `${r.avaliados ?? Object.keys(r.ans).length} de 10`, fmt(r.nota),
-    r.porTempo?"Sim":"Não", r.crit?"Sim":"Não", (r.obs||"").replace(/\s+/g," ")
+    r.porTempo?"Sim":"Não", r.crit?"Sim":"Não", r.obs||""
   ]);
   return [head,...rows];
 }
-$("btnCopiarTodos").onclick = ()=>{
-  if(!hist.length) return toast("Histórico vazio");
-  copy(tabela().map(x=>x.join("\t")).join("\n"));
-};
-const csvCell = v => { v = String(v); return /[";\n]/.test(v) ? `"${v.replace(/"/g,'""')}"` : v; };
+function buildXlsxBlob(){
+  if(typeof XLSX === "undefined") throw new Error("Biblioteca XLSX não carregou");
+  const rows = tabela();
+  const ws = XLSX.utils.aoa_to_sheet(rows);
+  const colCount = rows[0]?.length || 0;
+  ws["!cols"] = Array.from({ length: colCount }, (_, i) => {
+    if(i === colCount - 1) return { wch: 40 }; // Observações
+    if(i >= 6 && i <= 15) return { wch: 18 }; // Critérios
+    return { wch: 16 };
+  });
+  const wb = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(wb, ws, "Avaliações");
+  const out = XLSX.write(wb, { bookType: "xlsx", type: "array" });
+  return new Blob([out], { type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" });
+}
 let dlCap; // undefined = ainda não verificado
 async function getDownloads(){
   if(dlCap !== undefined) return dlCap;
@@ -1411,25 +1706,28 @@ async function getDownloads(){
 }
 $("btnBaixar").onclick = async ()=>{
   if(!hist.length) return toast("Histórico vazio");
-  const csv = "\uFEFF" + tabela().map(r=>r.map(csvCell).join(";")).join("\r\n");
+  if(!histFiltrado().length) return toast("Nenhum resultado para o filtro");
   const hoje = new Date().toLocaleDateString("pt-BR").replace(/\//g,"-");
-  const filename = `Desafio_Clinico_notas_${hoje}.csv`;
+  const filename = `Desafio_Clinico_notas_${hoje}.xlsx`;
+  let blob;
+  try{ blob = buildXlsxBlob(); }
+  catch(e){ console.error(e); toast("Não foi possível gerar o arquivo .xlsx"); return; }
   const dl = await getDownloads();
   if(dl){
-    try{ await dl.save({filename, data:new Blob([csv],{type:"text/csv"})}); toast("Planilha baixada"); }
+    try{ await dl.save({filename, data: blob}); toast("Planilha .xlsx baixada"); }
     catch(e){ if(e && e.code==="declined") return; semDownload(); }
     return;
   }
   if(window.claude){ semDownload(); return; }
   try{
-    const url = URL.createObjectURL(new Blob([csv],{type:"text/csv;charset=utf-8"}));
+    const url = URL.createObjectURL(blob);
     const a = document.createElement("a"); a.href=url; a.download=filename; document.body.appendChild(a); a.click(); a.remove();
-    setTimeout(()=>URL.revokeObjectURL(url), 2000); toast("Planilha baixada");
-  }catch(e){ toast("Não foi possível baixar. Use “Copiar tudo”."); }
+    setTimeout(()=>URL.revokeObjectURL(url), 2000); toast("Planilha .xlsx baixada");
+  }catch(e){ toast("Não foi possível baixar a planilha."); }
 };
 async function semDownload(){
   copy(tabela().map(x=>x.join("\t")).join("\n"));
-  await dlg.alert("O download não está liberado nesta visualização, então a planilha foi copiada. Cole no Excel, no Google Planilhas ou nas Notas do celular.\n\nPara baixar o arquivo direto, abra o avaliador pelo arquivo .html no navegador.", { title: "Planilha copiada" });
+  await dlg.alert("O download do .xlsx não está liberado nesta visualização, então a tabela foi copiada. Cole no Excel ou no Google Planilhas.\n\nPara baixar o arquivo .xlsx direto, abra o avaliador pelo arquivo .html no navegador.", { title: "Tabela copiada" });
 }
 $("btnLimpar").onclick = async ()=>{
   if(!await dlg.confirm("Reiniciar apenas o sorteio local deste aparelho? As avaliações na nuvem não serão apagadas.", { title: "Reiniciar sorteio", danger: true })) return;
@@ -1519,7 +1817,7 @@ $("btnTema").onclick = ()=>{
 aplicaTema();
 
 (async function boot(){
-  renderPool(); renderStList();
+renderPool(); renderStList();
   const { data: { session } } = await sb.auth.getSession();
   if(session?.user){
     sessionUser = session.user;
