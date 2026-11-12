@@ -156,18 +156,15 @@ body.is-auth .wrap{
 .pager{display:flex;align-items:center;justify-content:center;gap:10px;margin-top:12px;flex-wrap:wrap}
 .pager[hidden]{display:none!important}
 .pager .page-info{font-size:13px;font-weight:600;color:var(--muted);min-width:7em;text-align:center}
-.hist .meta{display:block;color:var(--muted);font-size:12px;margin-top:2px}
+.hist .meta{display:block;color:var(--muted);font-size:12px;margin-top:2px;line-height:1.35;overflow-wrap:anywhere}
 .hist .row1{display:flex;align-items:center;gap:6px;min-width:0}
-.hist .row1 strong{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.hist .h-main{flex:1;min-width:0;display:flex;align-items:center;gap:12px;background:none;border:0;padding:0;text-align:left;color:inherit;font:inherit;width:auto}
-.hist .h-actions{display:flex;flex-wrap:wrap;gap:6px;flex:none;justify-content:flex-end}
-.hist .h-actions .iconbtn{height:32px;padding:0 10px;font-size:12px}
+.hist .row1 strong{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;min-width:0}
+.hist .h-main{min-width:0;width:100%;display:flex;align-items:flex-start;gap:12px;background:none;border:0;padding:0;text-align:left;color:inherit;font:inherit}
+.hist .h-actions{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;width:100%}
+.hist .h-actions .iconbtn{height:36px;width:100%;padding:0 8px;font-size:12px;justify-content:center}
 .hist .h-actions .iconbtn.danger{color:var(--bad)}
 .hist .h-actions .iconbtn.danger:hover{border-color:var(--bad);background:var(--badbg)}
-@media (max-width:520px){
-  .hist .h{flex-wrap:wrap;align-items:flex-start}
-  .hist .h-actions{width:100%;justify-content:flex-start;margin-top:2px}
-}
+.hist .h-actions:has(> :only-child){grid-template-columns:1fr}
 #rEdit.hidden,#rView.hidden,#rActionsView.hidden,#rActionsEdit.hidden{display:none!important}
 .edit-crit{display:grid;gap:10px}
 .edit-crit .ec{border:1px solid var(--line);border-radius:10px;padding:10px 12px;background:var(--surface2)}
@@ -305,11 +302,11 @@ details .in p{margin:0 0 10px}
 .pill.ok{background:var(--okbg);color:var(--ok)}
 .pill.mid{background:var(--midbg);color:var(--mid)}
 .pill.bad{background:var(--badbg);color:var(--bad)}
-.hist .h{display:flex;align-items:center;gap:10px;padding:12px 0;border-bottom:1px solid var(--line);width:100%;flex-wrap:nowrap}
+.hist .h{display:flex;flex-direction:column;align-items:stretch;gap:10px;padding:14px 0;border-bottom:1px solid var(--line);width:100%;min-width:0}
 .hist .h:last-child{border-bottom:0}
-.hist .h-main div{flex:1;min-width:0}
+.hist .h-main > div{flex:1;min-width:0}
 .hist .h strong{display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.hist .h .g{font-size:22px;font-weight:800;font-variant-numeric:tabular-nums;flex:none}
+.hist .h .g{font-size:22px;font-weight:800;font-variant-numeric:tabular-nums;flex:none;line-height:1.1;padding-top:2px}
 .empty{color:var(--muted);font-size:14px;text-align:center;padding:12px}
 .stack{display:grid;gap:10px;margin-top:14px}
 .stack.stack-top{margin:0 0 14px}
@@ -1651,7 +1648,7 @@ function renderHist(){
           <button type="button" class="iconbtn danger" data-act="del" data-i="${idx}">Excluir</button>
         </div>`
       : `<div class="h-actions"><button type="button" class="iconbtn" data-act="open" data-i="${idx}">Ver</button></div>`;
-    return `<div class="h" data-i="${idx}"><div class="h-main"><div><div class="row1"><strong>${r.nome}</strong>${r.crit?`<span class="badge">Crítico</span>`:""}</div><span class="meta">RA ${r.ra||"—"} · Estação ${r.st}</span><span class="meta">${new Date(r.data).toLocaleString("pt-BR",{dateStyle:"short",timeStyle:"short"})}</span></div><span class="g">${fmt(r.nota)}</span></div>${actions}</div>`;
+    return `<div class="h" data-i="${idx}"><div class="h-main"><div><div class="row1"><strong>${r.nome}</strong>${r.crit?`<span class="badge">Crítico</span>`:""}</div><span class="meta">RA ${r.ra||"—"}</span><span class="meta">Estação ${r.st} · ${new Date(r.data).toLocaleString("pt-BR",{dateStyle:"short",timeStyle:"short"})}</span></div><span class="g">${fmt(r.nota)}</span></div>${actions}</div>`;
   }).join("");
   $("hList").querySelectorAll("[data-act]").forEach(b=>{
     b.onclick = ev=>{
