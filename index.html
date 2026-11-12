@@ -1,0 +1,1545 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Avaliador · Desafio Clínico UNIRP</title>
+<link rel="icon" href="https://www.unirp.edu.br/favicon.ico" type="image/x-icon">
+<link rel="shortcut icon" href="https://www.unirp.edu.br/favicon.ico" type="image/x-icon">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Montserrat:wght@600;700;800&family=Rubik:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{
+  /* Paleta institucional UNIRP (unirp.edu.br): vermelho #FF0000, texto #333/#444, fundos brancos */
+  --bg:#F7F7F7; --surface:#FFFFFF; --surface2:#F2F2F2; --ink:#333333; --muted:#555555; --line:#DDDDDD;
+  --navy:#333333; --teal:#FF0000; --orange:#C27025;
+  --ok:#1E8A55; --okbg:#E3F4EA; --mid:#B7791F; --midbg:#FBF0DC; --bad:#B00000; --badbg:#FBE5E2;
+  --onaccent:#FFFFFF;
+  --red:#FF0000; --red-soft:#FFE5E5;
+  --font-body:"Inter","Open Sans",system-ui,sans-serif;
+  --font-ui:"Rubik",system-ui,sans-serif;
+  --font-display:"Montserrat","Rubik",system-ui,sans-serif;
+  box-sizing:border-box;
+  padding-top:env(safe-area-inset-top,0px);
+  padding-bottom:env(safe-area-inset-bottom,0px);
+  color-scheme:light;
+}
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]){
+    --bg:#161616; --surface:#1F1F1F; --surface2:#2A2A2A; --ink:#F2F2F2; --muted:#B0B0B0; --line:#3A3A3A;
+    --navy:#444444; --teal:#FF3B3B; --orange:#E39A55;
+    --ok:#4CC98A; --okbg:#173527; --mid:#E6B45C; --midbg:#3A2E16; --bad:#FF6B6B; --badbg:#3D1E1B;
+    --onaccent:#FFFFFF;
+    --red:#FF3B3B; --red-soft:#3A1515;
+    color-scheme:dark;
+  }
+  :root:not([data-theme="light"]) .brand-logo,
+  :root:not([data-theme="light"]) .logo img{filter:brightness(1.05)}
+}
+:root[data-theme="dark"]{
+  --bg:#161616; --surface:#1F1F1F; --surface2:#2A2A2A; --ink:#F2F2F2; --muted:#B0B0B0; --line:#3A3A3A;
+  --navy:#444444; --teal:#FF3B3B; --orange:#E39A55;
+  --ok:#4CC98A; --okbg:#173527; --mid:#E6B45C; --midbg:#3A2E16; --bad:#FF6B6B; --badbg:#3D1E1B;
+  --onaccent:#FFFFFF;
+  --red:#FF3B3B; --red-soft:#3A1515;
+  color-scheme:dark;
+}
+:root[data-theme="dark"] .brand-logo,
+:root[data-theme="dark"] .logo img{filter:brightness(1.05)}
+@media (max-width:380px){
+  .brand-text span{display:none}
+  .brand-logo{height:34px}
+}
+*{box-sizing:border-box}
+html{scroll-padding-top:calc(env(safe-area-inset-top,0px) + 90px)}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--font-body);font-size:16px;line-height:1.45;-webkit-tap-highlight-color:transparent}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:10;background:var(--surface)}
+button{font:inherit;color:inherit;cursor:pointer;font-family:var(--font-ui)}
+.wrap{max-width:640px;margin:0 auto;padding:16px 16px 120px}
+html,body{min-height:100%}
+body.is-auth{
+  display:flex;
+  flex-direction:column;
+  min-height:100dvh;
+  min-height:100svh;
+}
+body.is-auth .wrap{
+  flex:1 1 auto;
+  display:flex;
+  flex-direction:column;
+  justify-content:center;
+  padding-top:24px;
+  padding-bottom:24px;
+  width:100%;
+  max-width:560px;
+}
+#vAuth:not(.hidden){width:100%}
+/* App shell: nav + drawer + user menu */
+.top-nav{display:none;align-items:center;gap:4px;flex:none}
+.nav-link{border:0;background:transparent;border-radius:0;padding:8px 10px;font-family:var(--font-ui);font-size:13px;font-weight:600;color:var(--muted);position:relative;transition:color .2s}
+.nav-link::after{content:"";position:absolute;left:10px;right:10px;bottom:2px;height:2px;border-radius:2px;background:var(--red);transform:scaleX(0);transform-origin:left center;transition:transform .28s cubic-bezier(.22,1,.36,1)}
+.nav-link:hover{color:var(--ink);background:transparent}
+.nav-link.is-active{color:var(--red);background:transparent}
+.nav-link.is-active::after{transform:scaleX(1)}
+@media (prefers-reduced-motion:reduce){
+  .nav-link::after{transition:none}
+}
+.btn-menu{display:inline-flex}
+.user-menu{position:relative;flex:none}
+.user-menu.hidden{display:none!important}
+.user-menu-btn{display:inline-flex;align-items:center;gap:8px;max-width:180px;padding:4px 10px 4px 4px;border:1px solid var(--line);border-radius:999px;background:var(--surface2);font-family:var(--font-ui);font-size:13px;font-weight:600;color:var(--ink);line-height:1;min-width:0}
+.user-menu-btn .av{flex:none;width:28px;height:28px;border-radius:50%;background:var(--red);color:#fff;display:grid;place-items:center;font-size:12px;font-weight:700;overflow:hidden;position:relative}
+.user-menu-btn .av img{width:100%;height:100%;object-fit:cover;display:block}
+.user-menu-btn .av.has-photo{background:var(--surface2)}
+.user-dd button:disabled{opacity:.5;cursor:wait}
+.user-menu-btn .nm{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.user-menu-btn .chev{flex:none;color:var(--muted);font-size:10px}
+.user-menu-btn[aria-expanded="true"]{border-color:var(--red);box-shadow:0 0 0 3px var(--red-soft)}
+.user-dd{position:absolute;right:0;top:calc(100% + 8px);min-width:200px;background:var(--surface);border:1px solid var(--line);border-radius:12px;box-shadow:0 12px 32px rgba(0,0,0,.14);padding:6px;z-index:30}
+.user-dd button{display:flex;width:100%;align-items:center;gap:10px;border:0;background:transparent;border-radius:8px;padding:10px 12px;font-family:var(--font-ui);font-size:14px;font-weight:600;color:var(--ink);text-align:left}
+.user-dd button:hover{background:var(--surface2)}
+.user-dd button.danger{color:var(--bad)}
+.user-dd .sep{height:1px;background:var(--line);margin:4px 6px}
+.drawer-backdrop{position:fixed;inset:0;background:rgba(0,0,0,.4);z-index:40;opacity:0;pointer-events:none;transition:opacity .2s}
+.drawer-backdrop.open{opacity:1;pointer-events:auto}
+.drawer{position:fixed;top:0;left:0;bottom:0;width:min(300px,86vw);background:var(--surface);border-right:1px solid var(--line);z-index:41;padding:calc(16px + env(safe-area-inset-top,0px)) 16px 24px;transform:translateX(-105%);transition:transform .22s ease;display:flex;flex-direction:column;gap:8px}
+.drawer.open{transform:translateX(0)}
+.drawer .drawer-head{font-family:var(--font-display);font-weight:800;font-size:18px;margin:0 0 12px}
+.drawer .nav-link{display:block;width:100%;text-align:left;padding:12px 14px;font-size:15px;border-radius:8px}
+.drawer .nav-link::after{left:14px;right:auto;bottom:10px;top:10px;width:3px;height:auto;transform:scaleY(0);transform-origin:center top}
+.drawer .nav-link.is-active{background:var(--surface2)}
+.drawer .nav-link.is-active::after{transform:scaleY(1)}
+@media (min-width:720px){
+  .top-nav{display:flex;margin-right:auto}
+  .btn-menu{display:none!important}
+  .brand{flex:0 1 auto;max-width:280px}
+}
+@media (max-width:520px){
+  .user-menu-btn .nm,.user-menu-btn .chev{display:none}
+  .user-menu-btn{padding:4px;max-width:none}
+}
+/* Hub dashboard */
+.page-head{margin:8px 0 18px}
+.page-head h1{margin:0 0 6px}
+.page-head .lead{margin:0}
+.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:16px}
+.stat{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:14px 12px;text-align:center}
+.stat .v{font-family:var(--font-display);font-size:22px;font-weight:800;line-height:1.1;font-variant-numeric:tabular-nums;color:var(--ink)}
+.stat .l{font-size:11px;font-weight:600;color:var(--muted);margin-top:6px;text-transform:uppercase;letter-spacing:.03em}
+.mod-grid{display:grid;gap:12px;margin-bottom:8px}
+.mod{display:flex;flex-direction:column;gap:10px;text-align:left;background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:18px;box-shadow:0 1px 3px rgba(0,0,0,.04)}
+.mod.active{border-color:var(--red);box-shadow:0 0 0 1px var(--red-soft)}
+.mod.soon{opacity:.55;pointer-events:none}
+.mod .tag{display:inline-flex;align-self:flex-start;font-size:11px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;color:var(--red);background:var(--red-soft);border-radius:999px;padding:4px 9px}
+.mod.soon .tag{color:var(--muted);background:var(--surface2)}
+.mod h3{margin:0;font-family:var(--font-display);font-size:18px;font-weight:800}
+.mod p{margin:0;font-size:14px;color:var(--muted);line-height:1.4}
+.mod .btn{margin-top:4px}
+.sec-head{display:flex;align-items:baseline;justify-content:space-between;gap:12px;margin:22px 0 10px}
+.sec-head h2{margin:0}
+.sec-head .link{border:0;background:none;color:var(--red);font-weight:700;font-size:14px;padding:0}
+.recent .h{display:flex;align-items:center;gap:12px;padding:12px 0;border-bottom:1px solid var(--line);width:100%;background:none;border-left:0;border-right:0;border-top:0;text-align:left}
+.recent .h:last-child{border-bottom:0}
+.recent .h div{flex:1;min-width:0}
+.recent .h strong{display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.recent .h small{color:var(--muted);font-size:12px}
+.recent .h .g{font-size:20px;font-weight:800;font-variant-numeric:tabular-nums}
+.badge{display:inline-block;margin-left:6px;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.03em;color:var(--bad);background:var(--badbg);border-radius:999px;padding:2px 7px;vertical-align:middle}
+.filters{display:grid;gap:12px}
+.filters .row{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.toolbar{display:grid;gap:10px;margin-top:14px}
+.hist .meta{display:block;color:var(--muted);font-size:12px;margin-top:2px}
+.hist .row1{display:flex;align-items:center;gap:6px;min-width:0}
+.hist .row1 strong{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+#vAuth.enter-in .logo,
+#vAuth.enter-in h1,
+#vAuth.enter-in .lead,
+#vAuth.enter-in .card{
+  opacity:0;
+  transform:translateY(18px);
+  animation:authEnter .55s cubic-bezier(.22,1,.36,1) forwards;
+}
+#vAuth.enter-in .logo{animation-delay:.04s}
+#vAuth.enter-in h1{animation-delay:.12s}
+#vAuth.enter-in .lead{animation-delay:.18s}
+#vAuth.enter-in .card{animation-delay:.26s}
+@keyframes authEnter{
+  to{opacity:1;transform:translateY(0)}
+}
+@media (prefers-reduced-motion:reduce){
+  #vAuth.enter-in .logo,
+  #vAuth.enter-in h1,
+  #vAuth.enter-in .lead,
+  #vAuth.enter-in .card{
+    animation:none;
+    opacity:1;
+    transform:none;
+  }
+}
+.top{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:var(--surface);border-bottom:1px solid var(--line);width:100%}
+.top-in{width:100%;max-width:none;margin:0;padding:10px 20px;display:flex;align-items:center;justify-content:flex-start;gap:12px;min-height:64px}
+.brand{display:flex;align-items:center;gap:12px;min-width:0;flex:1 1 auto;background:none;border:0;padding:0;text-align:left;cursor:pointer;font:inherit;color:inherit}
+.brand:disabled{cursor:default}
+.brand-logo{height:40px;width:auto;display:block;flex:none}
+.brand-text{min-width:0;display:flex;flex-direction:column;gap:1px;border-left:1px solid var(--line);padding-left:12px}
+.brand-text strong{font-family:var(--font-ui);font-weight:700;font-size:14px;color:var(--ink);line-height:1.2;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.brand-text span{font-family:var(--font-body);font-weight:500;font-size:11px;color:var(--muted);letter-spacing:.02em;text-transform:uppercase;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.top-actions{display:flex;align-items:center;gap:8px;flex:none;margin-left:auto}
+.iconbtn{border:1px solid var(--line);background:var(--surface2);border-radius:8px;padding:0 14px;height:36px;font-family:var(--font-ui);font-size:13px;font-weight:600;color:var(--ink);line-height:1;display:inline-flex;align-items:center;justify-content:center;gap:6px;transition:border-color .15s,color .15s,background .15s}
+.iconbtn:hover{border-color:var(--red);color:var(--red);background:var(--red-soft)}
+.iconbtn.icon-only{width:36px;padding:0;font-size:16px}
+h1{font-family:var(--font-display);font-size:26px;line-height:1.15;margin:18px 0 6px;font-weight:800;color:var(--ink)}
+h2{font-family:var(--font-display);font-size:18px;margin:22px 0 10px;font-weight:700}
+p.lead{color:var(--muted);margin:0 0 18px}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:16px;margin-bottom:12px;box-shadow:0 1px 3px rgba(0,0,0,.04)}
+label.f{display:block;font-size:14px;font-weight:600;margin:0 0 6px}
+input[type=text],input[type=password],input[type=email],textarea{width:100%;font:inherit;color:var(--ink);background:var(--surface);border:1px solid var(--line);border-radius:6px;padding:12px 14px;outline:none}
+input[type=text]:focus,input[type=password]:focus,input[type=email]:focus,textarea:focus{border-color:var(--red);box-shadow:0 0 0 3px var(--red-soft)}
+textarea{min-height:80px;resize:vertical}
+.row{display:flex;gap:10px}
+.row>*{flex:1}
+.btn{display:block;width:100%;border:0;border-radius:6px;padding:15px 16px;font-family:var(--font-ui);font-weight:700;font-size:16px;background:var(--navy);color:#FFFFFF}
+.btn.teal{background:var(--red);color:#FFFFFF}
+.btn.ghost{background:var(--surface);border:1px solid var(--line);color:var(--ink)}
+.btn.ghost:hover{border-color:var(--red);color:var(--red)}
+.btn:disabled{opacity:.45}
+.drum{display:flex;align-items:center;justify-content:center;flex-direction:column;min-height:150px;border-radius:8px;background:var(--surface2);border:1px dashed var(--line);text-align:center;padding:16px;margin:12px 0}
+.drum .num{font-size:64px;font-weight:800;line-height:1;color:var(--red);font-variant-numeric:tabular-nums}
+.drum .nm{font-weight:600;margin-top:8px}
+.drum.spin .num{color:var(--muted)}
+.pool{display:flex;flex-wrap:wrap;gap:6px;margin-top:6px}
+.chip{border:1px solid var(--line);border-radius:999px;padding:4px 10px;font-size:13px;font-weight:600;background:var(--surface2)}
+.chip.used{opacity:.4;text-decoration:line-through}
+.stations{display:grid;gap:8px;margin-top:8px}
+.st{display:flex;gap:12px;align-items:center;text-align:left;border:1px solid var(--line);background:var(--surface);border-radius:12px;padding:10px 12px}
+.st b{min-width:28px;height:28px;border-radius:8px;background:var(--surface2);display:grid;place-items:center;font-size:14px}
+.st.sel{border-color:var(--red);box-shadow:0 0 0 2px var(--red) inset}
+details{border:1px solid var(--line);border-radius:12px;background:var(--surface);margin:10px 0}
+details summary{padding:12px 14px;font-weight:700;cursor:pointer;list-style:none}
+details summary::-webkit-details-marker{display:none}
+details summary::after{content:"＋";float:right;color:var(--muted)}
+details[open] summary::after{content:"－"}
+details .in{padding:0 14px 14px;color:var(--ink);font-size:15px}
+details .in p{margin:0 0 10px}
+.sub{color:var(--muted);font-size:13px;font-weight:600;margin:0 0 2px}
+/* timer */
+.timer{display:flex;align-items:center;gap:12px;background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:10px 12px;margin:10px 0}
+.timer .t{font-size:28px;font-weight:800;font-variant-numeric:tabular-nums;min-width:86px}
+.timer .ph{flex:1;font-size:13px;color:var(--muted);line-height:1.3}
+.timer .ph strong{display:block;color:var(--ink);font-size:14px}
+.timer.alert{border-color:var(--orange);box-shadow:0 0 0 2px var(--orange) inset}
+.timer.alert .ph strong{color:var(--orange)}
+.timer.over .t{color:var(--bad)}
+.tbtn{border:0;border-radius:6px;padding:10px 12px;background:var(--red);color:#FFFFFF;font-weight:700;font-size:14px}
+/* items */
+.item{background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:14px;margin-bottom:12px;scroll-margin-top:calc(env(safe-area-inset-top,0px) + 80px)}
+.item.done{border-color:transparent;box-shadow:0 0 0 1px var(--line)}
+.ih{display:flex;gap:10px;align-items:flex-start}
+.ih .n{flex:none;width:30px;height:30px;border-radius:6px;display:grid;place-items:center;font-weight:800;font-size:14px;background:var(--surface2);border:1px solid var(--line)}
+.item.s-ok .ih .n{background:var(--ok);color:#FFFFFF;border-color:var(--ok)}
+.item.s-mid .ih .n{background:var(--mid);color:#FFFFFF;border-color:var(--mid)}
+.item.s-bad .ih .n{background:var(--bad);color:#FFFFFF;border-color:var(--bad)}
+.ih h3{margin:3px 0 0;font-size:16px;line-height:1.25}
+.crit{font-size:14px;color:var(--muted);margin:8px 0 12px}
+.gab{font-size:14px;background:var(--surface2);border-left:3px solid var(--orange);border-radius:8px;padding:10px 12px;margin:0 0 12px}
+.gab .sub{color:var(--orange)}
+.seg{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px}
+.seg button{border:1.5px solid var(--line);background:var(--surface2);border-radius:12px;padding:12px 4px;font-weight:700;font-size:14px;line-height:1.1}
+.seg button span{display:block;font-weight:500;font-size:12px;color:var(--muted);margin-top:3px}
+.seg button.on.ok{background:var(--okbg);border-color:var(--ok);color:var(--ok)}
+.seg button.on.mid{background:var(--midbg);border-color:var(--mid);color:var(--mid)}
+.seg button.on.bad{background:var(--badbg);border-color:var(--bad);color:var(--bad)}
+.seg button.on span{color:inherit}
+.toggle{display:flex;align-items:center;gap:12px;padding:14px;border:1px solid var(--line);border-radius:14px;background:var(--surface);margin-bottom:12px}
+.toggle input{width:22px;height:22px;accent-color:var(--red)}
+.toggle div{flex:1;font-size:14px}
+.toggle strong{display:block;font-size:15px}
+/* bottom bar */
+.bar{position:fixed;left:0;right:0;bottom:0;z-index:6;background:var(--surface);border-top:1px solid var(--line);padding:10px 16px calc(10px + env(safe-area-inset-bottom,0px))}
+.bar-in{max-width:640px;margin:0 auto;display:flex;align-items:center;gap:12px}
+.score{font-variant-numeric:tabular-nums}
+.score .v{font-size:26px;font-weight:800;line-height:1}
+.score .l{font-size:12px;color:var(--muted)}
+.prog{flex:1;height:8px;border-radius:99px;background:var(--surface2);overflow:hidden;border:1px solid var(--line)}
+.prog i{display:block;height:100%;background:var(--red);width:0;transition:width .25s}
+.bar .btn{width:auto;padding:13px 18px}
+/* result */
+.big{text-align:center;padding:26px 16px}
+.big .nota{font-size:84px;font-weight:800;line-height:1;font-variant-numeric:tabular-nums;color:var(--red)}
+.big .de{color:var(--muted);font-weight:600}
+.big .who{font-size:18px;font-weight:700;margin-top:14px}
+.big .st2{color:var(--muted);font-size:14px}
+.flag{display:inline-block;margin-top:12px;background:var(--badbg);color:var(--bad);border-radius:999px;padding:6px 12px;font-weight:700;font-size:13px}
+.res{display:grid;gap:6px}
+.res .r{display:flex;gap:10px;align-items:center;font-size:14px;padding:8px 0;border-bottom:1px solid var(--line)}
+.res .r:last-child{border-bottom:0}
+.res .r span{flex:1}
+.pill{font-size:12px;font-weight:700;border-radius:999px;padding:3px 9px;white-space:nowrap}
+.pill.ok{background:var(--okbg);color:var(--ok)}
+.pill.mid{background:var(--midbg);color:var(--mid)}
+.pill.bad{background:var(--badbg);color:var(--bad)}
+.hist .h{display:flex;align-items:center;gap:12px;padding:12px 0;border-bottom:1px solid var(--line);width:100%;background:none;border-left:0;border-right:0;border-top:0;text-align:left}
+.hist .h:last-child{border-bottom:0}
+.hist .h div{flex:1;min-width:0}
+.hist .h strong{display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.hist .h small{color:var(--muted)}
+.hist .h .g{font-size:22px;font-weight:800;font-variant-numeric:tabular-nums}
+.empty{color:var(--muted);font-size:14px;text-align:center;padding:12px}
+.stack{display:grid;gap:10px;margin-top:14px}
+.toast{position:fixed;left:50%;bottom:calc(90px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:var(--ink);color:var(--bg);padding:10px 16px;border-radius:12px;font-weight:600;font-size:14px;opacity:0;transition:opacity .2s;pointer-events:none;z-index:20}
+.toast.show{opacity:1}
+.modal-root{position:fixed;inset:0;z-index:50;display:flex;align-items:center;justify-content:center;padding:20px;padding-bottom:calc(20px + env(safe-area-inset-bottom,0px))}
+.modal-root[hidden]{display:none!important}
+.modal-backdrop{position:absolute;inset:0;background:rgba(0,0,0,.45)}
+.modal-panel{position:relative;width:100%;max-width:400px;background:var(--surface);border:1px solid var(--line);border-radius:14px;box-shadow:0 20px 50px rgba(0,0,0,.22);padding:20px 18px 16px;animation:modalIn .2s ease-out}
+@keyframes modalIn{from{opacity:0;transform:translateY(10px) scale(.98)}to{opacity:1;transform:none}}
+@media (prefers-reduced-motion:reduce){.modal-panel{animation:none}}
+.modal-title{font-family:var(--font-display);font-size:18px;font-weight:800;margin:0 0 8px;color:var(--ink)}
+.modal-msg{margin:0 0 18px;font-size:15px;line-height:1.45;color:var(--muted);white-space:pre-wrap}
+.modal-actions{display:flex;flex-wrap:wrap;gap:10px;justify-content:flex-end}
+.modal-actions .btn{width:auto;min-width:110px;padding:12px 16px;font-size:14px}
+.modal-actions .btn.danger{background:var(--bad);color:#fff}
+.hidden{display:none!important}
+.legend{font-size:13px;color:var(--muted);margin:6px 0 14px}
+.logo{display:flex;justify-content:center;background:#FFFFFF;border:1px solid var(--line);border-radius:8px;padding:18px 14px;margin:16px 0 4px}
+.logo img{width:180px;max-width:70%;height:auto;display:block}
+.prof{border-left:4px solid var(--red)}
+.prof small{display:block;color:var(--muted);font-size:13px;margin-top:6px}
+.dur{display:flex;align-items:center;gap:8px;margin:12px 0 0}
+.dur .lb{font-size:14px;font-weight:600;flex:1}
+.dur button{border:1.5px solid var(--line);background:var(--surface);border-radius:6px;padding:8px 12px;font-weight:700;font-size:14px;font-variant-numeric:tabular-nums}
+.dur button.on{background:var(--red);border-color:var(--red);color:#FFFFFF}
+.dur button:disabled{opacity:.45}
+.pill.na{background:var(--surface2);color:var(--muted);border:1px solid var(--line)}
+.flag.time{background:var(--midbg);color:var(--mid)}
+select{width:100%;font:inherit;color:var(--ink);background:var(--surface);border:1px solid var(--line);border-radius:6px;padding:12px 14px;outline:none;appearance:none;background-image:linear-gradient(45deg,transparent 50%,var(--muted) 50%),linear-gradient(135deg,var(--muted) 50%,transparent 50%);background-position:calc(100% - 18px) calc(1em + 4px),calc(100% - 12px) calc(1em + 4px);background-size:6px 6px,6px 6px;background-repeat:no-repeat}
+select:focus{border-color:var(--red);box-shadow:0 0 0 3px var(--red-soft)}
+.auth-err{color:var(--bad);font-size:14px;margin:8px 0 0;min-height:1.2em}
+.auth-switch{text-align:center;margin-top:14px;font-size:14px;color:var(--muted)}
+.auth-switch button{background:none;border:0;color:var(--red);font-weight:700;padding:0;text-decoration:underline}
+.pw{position:relative}
+.pw input{padding-right:48px}
+.pw .eye{position:absolute;right:6px;top:50%;transform:translateY(-50%);border:0;background:transparent;color:var(--muted);width:40px;height:40px;border-radius:6px;display:grid;place-items:center;font-size:18px;line-height:1}
+.pw .eye:hover{color:var(--ink);background:var(--surface2)}
+.pw .eye[aria-pressed="true"]{color:var(--red)}
+.filter{margin-bottom:12px}
+</style>
+</head>
+<body class="is-auth">
+<header class="top"><div class="top-in">
+  <button type="button" class="iconbtn icon-only btn-menu hidden" id="btnMenu" aria-label="Abrir menu" aria-expanded="false" aria-controls="drawer">☰</button>
+  <button type="button" class="brand" id="btnBrand" aria-label="Ir para o início">
+    <img class="brand-logo" src="https://aplicacoes2.unirp.edu.br/Documentos/Imagens/LogoVermelha.png" alt="" width="147" height="40">
+    <div class="brand-text">
+      <strong>Desafio Clínico</strong>
+      <span>Enfermagem</span>
+    </div>
+  </button>
+  <nav class="top-nav hidden" id="topNav" aria-label="Principal">
+    <button type="button" class="nav-link" data-nav="home" id="navHome">Início</button>
+    <button type="button" class="nav-link" data-nav="hist" id="navHist">Histórico</button>
+  </nav>
+  <div class="top-actions">
+    <div class="user-menu hidden" id="userMenu">
+      <button type="button" class="user-menu-btn" id="btnUserMenu" aria-haspopup="menu" aria-expanded="false" aria-controls="userDd" title="">
+        <span class="av" id="userAv" aria-hidden="true">?</span>
+        <span class="nm" id="userNm">—</span>
+        <span class="chev" aria-hidden="true">▾</span>
+      </button>
+      <div class="user-dd hidden" id="userDd" role="menu">
+        <button type="button" role="menuitem" id="btnFoto">Alterar foto</button>
+        <button type="button" role="menuitem" id="btnFotoRemover" class="hidden">Remover foto</button>
+        <button type="button" role="menuitem" id="btnTema">Tema</button>
+        <div class="sep" aria-hidden="true"></div>
+        <button type="button" role="menuitem" class="danger" id="btnSair">Sair</button>
+      </div>
+      <input type="file" id="inAvatar" accept="image/jpeg,image/png,image/webp,image/gif" class="hidden" tabindex="-1">
+    </div>
+  </div>
+</div></header>
+<div class="drawer-backdrop" id="drawerBackdrop" hidden></div>
+<aside class="drawer" id="drawer" aria-hidden="true" hidden>
+  <div class="drawer-head">Menu</div>
+  <button type="button" class="nav-link" data-nav="home" id="drawerHome">Início</button>
+  <button type="button" class="nav-link" data-nav="hist" id="drawerHist">Histórico</button>
+</aside>
+
+<main class="wrap is-auth" id="wrap">
+  <!-- AUTH: login / cadastro -->
+  <section id="vAuth" class="enter-in">
+    <div class="logo">
+      <img src="https://aplicacoes2.unirp.edu.br/Documentos/Imagens/LogoVermelha.png" alt="UNIRP — Centro Universitário de Rio Preto" width="180" height="49">
+    </div>
+    <h1 id="authTitle">Entrar</h1>
+    <p class="lead" id="authLead">Acesso exclusivo para professores avaliadores.</p>
+    <div class="card" id="cardLogin">
+      <label class="f" for="inEmail">E-mail</label>
+      <input type="text" id="inEmail" autocomplete="username" inputmode="email" placeholder="seu@email.com">
+      <div style="height:12px"></div>
+      <label class="f" for="inSenha">Senha</label>
+      <div class="pw">
+        <input type="password" id="inSenha" autocomplete="current-password" placeholder="Senha">
+        <button type="button" class="eye" data-pw="inSenha" aria-label="Mostrar senha" aria-pressed="false">👁</button>
+      </div>
+      <p class="auth-err" id="authErr"></p>
+      <div style="height:12px"></div>
+      <button class="btn teal" id="btnLogin">Entrar</button>
+      <div class="auth-switch">Não tem conta? <button type="button" id="btnShowCad">Cadastrar professor</button></div>
+    </div>
+    <div class="card hidden" id="cardCad">
+      <label class="f" for="inNomeProf">Nome completo</label>
+      <input type="text" id="inNomeProf" autocomplete="name" placeholder="Nome completo">
+      <div style="height:12px"></div>
+      <label class="f" for="inEmailCad">E-mail</label>
+      <input type="text" id="inEmailCad" autocomplete="username" inputmode="email" placeholder="seu@email.com">
+      <div style="height:12px"></div>
+      <label class="f" for="inSenhaCad">Senha</label>
+      <div class="pw">
+        <input type="password" id="inSenhaCad" autocomplete="new-password" placeholder="Mínimo 6 caracteres">
+        <button type="button" class="eye" data-pw="inSenhaCad" aria-label="Mostrar senha" aria-pressed="false">👁</button>
+      </div>
+      <div style="height:12px"></div>
+      <label class="f" for="inSenhaCad2">Confirmar senha</label>
+      <div class="pw">
+        <input type="password" id="inSenhaCad2" autocomplete="new-password" placeholder="Repita a senha">
+        <button type="button" class="eye" data-pw="inSenhaCad2" aria-label="Mostrar senha" aria-pressed="false">👁</button>
+      </div>
+      <p class="auth-err" id="cadErr"></p>
+      <div style="height:12px"></div>
+      <button class="btn teal" id="btnCadastrar">Criar conta</button>
+      <div class="auth-switch">Já tem conta? <button type="button" id="btnShowLogin">Entrar</button></div>
+    </div>
+  </section>
+
+  <!-- Hub: área do professor -->
+  <section id="vWelcome" class="hidden">
+    <div class="page-head">
+      <h1 id="welcomeTitle">Olá</h1>
+      <p class="lead">Área do professor · plataforma de avaliações</p>
+    </div>
+    <div class="stats" id="hubStats" aria-live="polite">
+      <div class="stat"><div class="v" id="statTotal">—</div><div class="l">Avaliações</div></div>
+      <div class="stat"><div class="v" id="statMedia">—</div><div class="l">Média</div></div>
+      <div class="stat"><div class="v" id="statCrit">—</div><div class="l">Erro crítico</div></div>
+    </div>
+    <div class="sec-head"><h2>Módulos</h2></div>
+    <div class="mod-grid">
+      <article class="mod active">
+        <span class="tag">Ativo</span>
+        <h3>Desafio Clínico</h3>
+        <p>OSCE de enfermagem com 7 estações, sorteio e checklist padronizado.</p>
+        <button class="btn teal" id="btnWelcomeNova" type="button">Nova avaliação</button>
+      </article>
+      <article class="mod soon" aria-disabled="true">
+        <span class="tag">Em breve</span>
+        <h3>Novos módulos</h3>
+        <p>Outras avaliações clínicas poderão ser adicionadas aqui.</p>
+      </article>
+    </div>
+    <div class="sec-head">
+      <h2>Recentes</h2>
+      <button type="button" class="link" id="btnWelcomeHist">Ver tudo</button>
+    </div>
+    <div class="card recent" id="hubRecent">
+      <div class="empty">Nenhuma avaliação ainda.</div>
+    </div>
+  </section>
+
+  <!-- TELA 1: aluno e sorteio -->
+  <section id="vStart" class="hidden">
+    <h1 id="startTitulo">Nova avaliação</h1>
+    <p class="lead" id="startLead">Informe o aluno e a estação para avaliar.</p>
+    <div class="card">
+      <label class="f" for="inNome">Nome do aluno</label>
+      <input type="text" id="inNome" autocomplete="off" placeholder="Nome completo">
+      <div style="height:12px"></div>
+      <label class="f" for="inRA">RA (opcional)</label>
+      <input type="text" id="inRA" autocomplete="off" inputmode="numeric" placeholder="RA">
+    </div>
+
+    <div class="card">
+      <label class="f">Estação</label>
+      <div class="drum" id="drum"><div class="num" id="drumNum">?</div><div class="nm" id="drumNm">Toque em sortear</div></div>
+      <button class="btn teal" id="btnSortear">Sortear estação</button>
+      <p class="legend" style="margin-top:10px">O sorteio não repete estações até todas as 7 saírem.</p>
+      <div class="pool" id="pool"></div>
+      <details style="margin-top:14px">
+        <summary>Escolher manualmente</summary>
+        <div class="in"><div class="stations" id="stList"></div></div>
+      </details>
+    </div>
+    <button class="btn" id="btnIniciar" disabled>Iniciar avaliação</button>
+    <div class="stack"><button class="btn ghost" id="btnVoltarWelcome">Voltar</button></div>
+  </section>
+
+  <!-- TELA 2: avaliação -->
+  <section id="vEval" class="hidden">
+    <p class="sub" id="evAluno" style="margin-top:14px"></p>
+    <h1 id="evTitulo"></h1>
+
+    <div class="dur" id="dur"><span class="lb">Tempo da estação</span>
+      <button data-m="10">10 min</button><button data-m="15">15 min</button><button data-m="20">20 min</button>
+    </div>
+    <div class="timer" id="timer">
+      <div class="t" id="tVal">15:00</div>
+      <div class="ph" id="tPh"><strong>Pronto para começar</strong>15 minutos no total</div>
+      <button class="tbtn" id="tBtn">Iniciar</button>
+    </div>
+
+    <details>
+      <summary>Caso clínico</summary>
+      <div class="in" id="evCaso"></div>
+    </details>
+    <details>
+      <summary>Intercorrência e gabarito</summary>
+      <div class="in" id="evInter"></div>
+    </details>
+
+    <h2>Critérios</h2>
+    <p class="legend">Correto = 1 · Parcial = 0,5 · Incorreto = 0</p>
+    <div id="items"></div>
+
+    <label class="toggle"><input type="checkbox" id="chkCrit"><div><strong>Erro crítico</strong>Registra que houve risco grave ao paciente (não altera a nota automaticamente).</div></label>
+    <div class="card">
+      <label class="f" for="inObs">Observações</label>
+      <textarea id="inObs" placeholder="Pontos fortes, falhas, conduta na intercorrência…"></textarea>
+    </div>
+    <button class="btn ghost" id="btnCancelar">Cancelar avaliação</button>
+  </section>
+
+  <!-- TELA 3: resultado -->
+  <section id="vRes" class="hidden">
+    <div class="card big">
+      <div class="nota" id="rNota">0,0</div>
+      <div class="de">de 10</div>
+      <div class="who" id="rWho"></div>
+      <div class="st2" id="rSt"></div>
+      <div class="st2" id="rProf"></div>
+      <div id="rFlag"></div>
+    </div>
+    <div class="card"><div class="res" id="rList"></div></div>
+    <div class="card hidden" id="rObsCard"><p class="sub">Observações</p><div id="rObs" style="white-space:pre-wrap;font-size:15px"></div></div>
+    <div class="stack">
+      <button class="btn teal" id="btnCopiar1">Copiar resultado</button>
+      <button class="btn" id="btnNovo">Avaliar próximo aluno</button>
+    </div>
+  </section>
+
+  <!-- TELA 4: histórico -->
+  <section id="vHist" class="hidden">
+    <div class="page-head">
+      <h1>Histórico</h1>
+      <p class="lead" id="hLead">Avaliações salvas na nuvem.</p>
+    </div>
+    <div class="card filters">
+      <label class="f" for="inFiltro">Buscar aluno ou RA</label>
+      <input type="text" id="inFiltro" autocomplete="off" placeholder="Nome ou RA">
+      <div class="row">
+        <div>
+          <label class="f" for="inFiltroSt">Estação</label>
+          <select id="inFiltroSt">
+            <option value="">Todas</option>
+            <option value="1">E1</option>
+            <option value="2">E2</option>
+            <option value="3">E3</option>
+            <option value="4">E4</option>
+            <option value="5">E5</option>
+            <option value="6">E6</option>
+            <option value="7">E7</option>
+          </select>
+        </div>
+        <div>
+          <label class="f" for="inFiltroCrit">Erro crítico</label>
+          <select id="inFiltroCrit">
+            <option value="">Todos</option>
+            <option value="1">Sim</option>
+            <option value="0">Não</option>
+          </select>
+        </div>
+      </div>
+    </div>
+    <div class="card hist" id="hList"></div>
+    <div class="toolbar">
+      <button class="btn teal" id="btnBaixar">Baixar planilha</button>
+      <button class="btn ghost" id="btnCopiarTodos">Copiar tudo (Excel)</button>
+      <button class="btn ghost" id="btnLimpar">Limpar cache do sorteio</button>
+    </div>
+  </section>
+</main>
+
+<div class="bar hidden" id="bar"><div class="bar-in">
+  <div class="score"><div class="v" id="bNota">0,0</div><div class="l" id="bProg">0 de 10</div></div>
+  <div class="prog"><i id="bFill"></i></div>
+  <button class="btn" id="btnFinalizar" disabled>Finalizar</button>
+</div></div>
+<div class="toast" id="toast"></div>
+<div class="modal-root" id="modal" hidden>
+  <div class="modal-backdrop" id="modalBackdrop"></div>
+  <div class="modal-panel" role="dialog" aria-modal="true" aria-labelledby="modalTitle" aria-describedby="modalMsg">
+    <h2 class="modal-title" id="modalTitle">Atenção</h2>
+    <p class="modal-msg" id="modalMsg"></p>
+    <div class="modal-actions">
+      <button type="button" class="btn ghost" id="modalCancel">Cancelar</button>
+      <button type="button" class="btn teal" id="modalOk">OK</button>
+    </div>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+const SB_URL = "https://rwjkydxrozpyvvtooeiy.supabase.co";
+const SB_ANON = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJ3amt5ZHhyb3pweXZ2dG9vZWl5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTQ1MTQwOTQsImV4cCI6MjExMDA5MDA5NH0.QXFnwcC9NiYXl0tJmiJ0JkTcAiS9FtitvfjG_iFLfcM";
+const sb = window.supabase.createClient(SB_URL, SB_ANON);
+
+const BASE = [
+  {k:"ident", t:"Identificação e comunicação", d:"Apresenta-se, confere nome completo e data de nascimento (pulseira) e orienta o paciente sobre o procedimento."},
+  {k:"presc", t:"Conferência da prescrição/solicitação"},
+  {k:"maos",  t:"Higiene das mãos e EPI", d:"Higieniza as mãos nos momentos corretos (antes e após o contato e o procedimento) e usa o EPI adequado."},
+  {k:"mat",   t:"Separação e organização do material"},
+  {k:"prep",  t:"Preparo e posicionamento do paciente"},
+  {k:"asep",  t:"Técnica asséptica e antissepsia"},
+  {k:"tec",   t:"Execução da técnica"},
+  {k:"seg",   t:"Segurança do paciente"},
+  {k:"inter", t:"Intercorrência: raciocínio e conduta"},
+  {k:"anot",  t:"Descarte e anotação de enfermagem"}
+];
+
+const ST = [
+ {n:1, nome:"Administração intramuscular: benzilpenicilina benzatina",
+  caso:"Paciente V.M.S., 17 anos, primigesta, 18 semanas de gestação. Diagnóstico informado: sífilis. Prescrição: benzilpenicilina benzatina 1.200.000 UI IM. Tarefa: conferir a prescrição, preparar o medicamento e demonstrar a administração intramuscular segura no simulador.",
+  inter:"A paciente pergunta: “Minha amiga recebeu duas injeções. Essa quantidade está correta para mim?” Pergunta: o que você faz antes de administrar?",
+  gab:"Suspender a administração até esclarecer a divergência; verificar classificação clínica, esquema terapêutico, dose total e prescrição; contatar o prescritor quando necessário. Não presumir que 1.200.000 UI seja o esquema completo.",
+  nota:"Validar previamente o esquema terapêutico e a prescrição do caso. A dose de 1.200.000 UI pode corresponder a uma unidade de aplicação, e o tratamento depende da classificação clínica.",
+  c:{
+   presc:"Confere os certos da medicação (paciente, medicamento, dose, via, horário), pergunta sobre alergia a penicilina e não administra com dúvida ou divergência.",
+   mat:"Frasco + diluente, seringa adequada ao volume, agulha de aspiração e de aplicação compatível com a suspensão, algodão, álcool 70%, luvas, bandeja e caixa de perfurocortante.",
+   prep:"Garante privacidade e posiciona a gestante com conforto e segurança para o sítio escolhido.",
+   asep:"Prepara o medicamento sem contaminar e realiza antissepsia do sítio, aguardando secar.",
+   tec:"Reconstitui e homogeneíza sem grumos; delimita corretamente o sítio (ventroglútea ou dorsoglútea); aplica a 90° de forma lenta e retira com compressão leve.",
+   seg:"Investiga alergia, não prossegue com divergência e mantém a paciente em observação após a aplicação, atento a sinais de reação.",
+   anot:"Descarta perfurocortante sem reencapar; registra data/hora, medicamento, dose, via, local, lote, orientações e intercorrência, com assinatura e COREN."
+  }},
+ {n:2, nome:"Punção venosa periférica com Abocath",
+  caso:"Paciente M.B., 74 anos, com sepse de foco urinário, febre, calafrios, confusão mental e necessidade de acesso venoso para tratamento. Prescrição: SF 0,9% 100 mL + ceftriaxona 2 g (2 frascos-ampola de 1 g) EV.",
+  inter:"Após o início da infusão, o paciente refere dor no local. O professor informa que há edema no membro. Pergunta: qual sua conduta imediata?",
+  gab:"Interromper a infusão; avaliar o acesso e o membro; reconhecer possível infiltração/extravasamento; seguir protocolo para retirada ou manejo do dispositivo; providenciar novo acesso se indicado; comunicar e registrar.",
+  nota:"Conferir reconstituição, diluição e tempo de infusão da ceftriaxona na bula e no protocolo institucional. Investigar alergia a betalactâmicos (penicilinas e cefalosporinas). A ceftriaxona não deve ser misturada nem infundida no mesmo acesso com soluções que contenham cálcio, como Ringer lactato.",
+  c:{
+   presc:"Confere os certos da medicação (paciente, medicamento, dose de 2 g, via EV, horário) e pergunta sobre alergia a antibióticos, especialmente penicilinas e cefalosporinas.",
+   mat:"Cateter de calibre adequado ao idoso, garrote, antisséptico, algodão/gaze, luvas, 2 frascos-ampola de ceftriaxona 1 g, água destilada para reconstituição, seringa e agulha de aspiração, SF 0,9% 100 mL, equipo, extensor preenchido, SF para flush, cobertura/fixação e rótulo da solução.",
+   prep:"Orienta o paciente apesar da confusão mental, posiciona o membro e escolhe veia distal, evitando articulações e membro comprometido.",
+   asep:"Desinfeta as tampas dos frascos-ampola e do SF, reconstitui e dilui sem contaminar, faz antissepsia do sítio sem repalpar e mantém conexões e equipo sem contaminação.",
+   tec:"Reconstitui e dilui a ceftriaxona no SF 0,9% 100 mL e rotula a solução; garroteia, punciona com bisel para cima, observa refluxo, avança o cateter, solta o garrote, testa permeabilidade com flush e instala a infusão no tempo indicado pela bula/protocolo.",
+   seg:"Investiga alergia antes de iniciar; não reencapa e ativa o dispositivo de segurança; não associa soluções com cálcio; observa o acesso (dor, edema, rubor) e sinais de reação durante a infusão, protegendo o paciente confuso de tração do cateter.",
+   anot:"Descarta corretamente; identifica o acesso (data, calibre, responsável) e registra local, número de tentativas, calibre, medicamento, dose, diluição, horário, tempo de infusão e intercorrência."
+  }},
+ {n:3, nome:"Administração endovenosa com Scalp",
+  caso:"Paciente W.A.R., 52 anos, anemia, hemoglobina de 6,23 g/dL. Comparece à UBS para administração de Noripurum EV. Prescrição: uma ampola de Noripurum EV em SF 0,9% 100 ml. Tarefa: conferir a apresentação, o preparo e demonstrar a administração conforme prescrição, bula e protocolo.",
+  inter:"Durante a infusão, o paciente relata coceira intensa, apresenta vermelhidão na pele e refere mal-estar. Pergunta: qual sua conduta?",
+  gab:"Interromper imediatamente a administração; avaliar via aérea, respiração, circulação e sinais vitais; acionar equipe de emergência conforme gravidade; prestar suporte e monitorar; comunicar e registrar a suspeita de reação adversa.",
+  nota:"Conferir a formulação específica de ferro intravenoso e sua bula. Apresentações diferentes podem ter preparo e velocidade distintos.",
+  c:{
+   presc:"Confere apresentação, dose, diluição e velocidade com prescrição e bula; pergunta sobre alergias e reações prévias a ferro.",
+   mat:"Ampola, SF 0,9% 100 ml, seringa e agulha de aspiração, equipo, scalp de calibre adequado, garrote, algodão, álcool 70%, luvas, fixação e rótulo da solução.",
+   prep:"Acomoda o paciente sentado ou reclinado com conforto e orienta a relatar qualquer sintoma durante a infusão.",
+   asep:"Prepara a diluição assepticamente, rotula a solução e realiza antissepsia antes da punção.",
+   tec:"Punciona com scalp, confirma refluxo, fixa, instala a infusão e controla o gotejamento na velocidade autorizada.",
+   seg:"Verifica sinais vitais antes e durante, observa extravasamento e sinais de reação, e mantém o paciente em observação após o término.",
+   anot:"Descarta corretamente; registra medicamento, diluição, velocidade, local de punção, sinais vitais, reações e conduta."
+  }},
+ {n:4, nome:"Sondagem nasoenteral",
+  caso:"Paciente A.M.L., 65 anos, pós-AVE isquêmico, disfagia importante, hemiplegia à esquerda, acamado e com perda ponderal. Solicitação: passagem de sonda nasoenteral para alimentação. Tarefa: demonstrar avaliação, preparo, mensuração, introdução e fixação da sonda no simulador.",
+  inter:"Após a passagem, o familiar pergunta: “Já podemos começar a dieta? Ele está há muitas horas sem comer.” Pergunta: o que você responde e faz?",
+  gab:"Não liberar dieta, água ou medicamentos pela sonda antes da confirmação adequada do posicionamento; seguir o método institucional validado, incluindo radiografia quando indicada para confirmação inicial; aguardar liberação.",
+  nota:"Enfatizar prevenção de broncoaspiração. O método de confirmação deve seguir protocolo institucional e diretrizes vigentes.",
+  c:{
+   presc:"Confere a solicitação e a indicação; avalia narinas, nível de consciência e fatores de risco antes de iniciar.",
+   mat:"Sonda nasoenteral com fio-guia, lubrificante hidrossolúvel, seringa, gaze, luvas, fita para marcação e fixação, estetoscópio, toalha e biombo.",
+   prep:"Eleva a cabeceira (Fowler alto), posiciona a cabeça com leve flexão e garante privacidade.",
+   asep:"Mantém a sonda limpa durante o manuseio e o lubrificante sem contaminação (técnica limpa).",
+   tec:"Mensura conforme protocolo, marca a sonda, lubrifica, introduz com delicadeza estimulando deglutição se possível e fixa sem tracionar a narina.",
+   seg:"Interrompe se houver tosse, cianose ou desconforto respiratório; não usa ausculta após insuflação de ar como confirmação; solicita confirmação do posicionamento.",
+   anot:"Recolhe o material; registra número da sonda, narina, marcação externa, tolerância, método de confirmação solicitado e orientações à família."
+  }},
+ {n:5, nome:"Sondagem vesical de alívio feminina",
+  caso:"Paciente E.F.J., 42 anos, pós-operatório de reconstrução do ligamento cruzado anterior, submetida à raquianestesia. Sem diurese até o momento e com bexigoma. Solicitação: sondagem vesical de alívio. Tarefa: demonstrar o procedimento em simulador feminino.",
+  inter:"Durante a tentativa, você não visualiza o meato urinário e percebe desconforto importante da paciente. Pergunta: como proceder?",
+  gab:"Interromper a tentativa; não realizar introduções repetidas ou forçadas; reavaliar posição, iluminação e visualização anatômica; solicitar auxílio quando necessário; preservar privacidade e conforto e registrar a dificuldade.",
+  nota:"Avaliar técnica asséptica, identificação anatômica e prevenção de trauma. O roteiro deve ser adaptado ao protocolo institucional.",
+  c:{
+   presc:"Confere a solicitação, avalia o bexigoma (palpação/percussão) e o tempo sem diurese.",
+   mat:"Kit de cateterismo estéril, sonda de alívio de calibre adequado, luvas estéreis, lubrificante estéril, antisséptico, gazes, cuba rim, recipiente graduado, material de higiene íntima e biombo.",
+   prep:"Garante privacidade, faz higiene íntima e posiciona a paciente respeitando o membro operado.",
+   asep:"Monta o campo estéril, calça luvas estéreis sem contaminar e faz antissepsia no sentido correto, trocando a gaze a cada movimento.",
+   tec:"Afasta os pequenos lábios, lubrifica e introduz a sonda sem força até o retorno de urina, drena, retira suavemente e mede o volume.",
+   seg:"Não força nem reintroduz sonda contaminada; observa desconforto e drenagem de grande volume conforme protocolo.",
+   anot:"Descarta corretamente; registra volume drenado, aspecto da urina, intercorrências e queixas."
+  }},
+ {n:6, nome:"Sondagem vesical de demora masculina",
+  caso:"Paciente M.B., 74 anos, internado em UTI com sepse urinária, necessitando de controle rigoroso do débito urinário. Solicitação: sondagem vesical de demora masculina. Tarefa: demonstrar preparo, inserção da sonda Foley e instalação do sistema coletor.",
+  inter:"Após a passagem da sonda, não ocorre drenagem urinária. O paciente demonstra desconforto e dor. Pergunta: o que você faria?",
+  gab:"Não insuflar o balonete sem confirmação intravesical; não forçar a progressão; verificar dobras ou obstrução externa; reavaliar posicionamento e retorno; interromper a tentativa e solicitar avaliação/auxílio se houver suspeita de posicionamento inadequado.",
+  nota:"Reforçar que o balonete não deve ser insuflado antes da confirmação de posicionamento intravesical. Seguir protocolo institucional.",
+  c:{
+   presc:"Confere solicitação e indicação; pergunta sobre alergias (inclusive látex) e avalia condições clínicas.",
+   mat:"Kit de cateterismo estéril, sonda Foley de calibre adequado, bolsa coletora de sistema fechado, seringa com água destilada, lubrificante estéril, antisséptico, luvas estéreis, gazes e fixação.",
+   prep:"Garante privacidade, posiciona em decúbito dorsal e realiza higiene íntima prévia.",
+   asep:"Campo e luvas estéreis; antissepsia do meato para a periferia com o prepúcio retraído; conecta o sistema fechado sem contaminar.",
+   tec:"Lubrifica a uretra, posiciona o pênis corretamente, introduz sem força até o retorno de urina, insufla o balonete com o volume indicado e traciona suavemente.",
+   seg:"Insufla somente após confirmação; reposiciona o prepúcio; fixa a sonda e mantém a bolsa abaixo da bexiga e sem contato com o chão.",
+   anot:"Descarta corretamente; registra calibre, volume do balonete, débito e aspecto da urina, intercorrências e data da inserção."
+  }},
+ {n:7, nome:"Aspiração de traqueostomia",
+  caso:"Paciente G.H.J., 38 anos, sequelas de TCE, acamado, traqueostomizado em ar ambiente, com secreção abundante e crepitações pulmonares. Solicitação: avaliar necessidade e demonstrar aspiração de traqueostomia no simulador.",
+  inter:"Durante o procedimento, a saturação cai de 96% para 86%, acompanhada de desconforto respiratório. Pergunta: qual sua conduta imediata?",
+  gab:"Interromper a aspiração e retirar a sonda; restabelecer oxigenação conforme necessidade e protocolo; avaliar permeabilidade da via aérea e padrão respiratório; monitorar; acionar ajuda; reavaliar antes de nova tentativa e registrar.",
+  nota:"Aspiração somente quando clinicamente indicada; limitar duração e monitorar resposta. Não realizar instilação rotineira de solução salina.",
+  c:{
+   presc:"Avalia a necessidade de aspirar (ausculta, secreção visível, saturação, padrão respiratório) antes de iniciar.",
+   mat:"Sonda de aspiração estéril de calibre adequado à cânula, aspirador testado, luva estéril, EPI (óculos, máscara, avental), água/SF para lavar a extensão, oxímetro e fonte de oxigênio.",
+   prep:"Eleva a cabeceira, orienta o paciente mesmo que pouco responsivo e monitora a saturação.",
+   asep:"Mantém a mão dominante estéril para a sonda e não contamina a sonda durante o procedimento.",
+   tec:"Introduz sem aspirar, aspira durante a retirada com movimentos rotatórios respeitando o tempo seguro e o intervalo entre as passagens; lava a extensão ao final.",
+   seg:"Monitora saturação e frequência cardíaca, limita o número de passagens e não instila solução salina de rotina.",
+   anot:"Descarta corretamente; registra aspecto e quantidade da secreção, saturação antes e depois, tolerância e intercorrências."
+  }}
+];
+
+const VAL = {ok:1, mid:0.5, bad:0};
+const LBL = {ok:"Correto", mid:"Parcial", bad:"Incorreto"};
+const lbl = v => LBL[v] || "Não avaliado";
+const $ = id => document.getElementById(id);
+const fmt = n => Number(n).toFixed(1).replace(".", ",");
+
+function load(k, def){ try{ const v = localStorage.getItem(k); return v ? JSON.parse(v) : def; }catch(e){ return def; } }
+function save(k, v){ try{ localStorage.setItem(k, JSON.stringify(v)); }catch(e){} }
+
+let hist = [];
+let used = load("dc_used", []);
+let cur = null;
+let chosen = null;
+let sessionUser = null;
+let meProf = null; // {id, nome_completo, email}
+let histFiltro = "";
+let histFiltroSt = "";
+let histFiltroCrit = "";
+let currentView = "vAuth";
+
+function toast(m){ const t=$("toast"); t.textContent=m; t.classList.add("show"); setTimeout(()=>t.classList.remove("show"),1800); }
+
+const dlg = (()=>{
+  let resolver = null;
+  const root = ()=> $("modal");
+  const titleEl = ()=> $("modalTitle");
+  const msgEl = ()=> $("modalMsg");
+  const btnOk = ()=> $("modalOk");
+  const btnCancel = ()=> $("modalCancel");
+  function finish(v){
+    if(!resolver) return;
+    const r = resolver; resolver = null;
+    root().hidden = true;
+    document.removeEventListener("keydown", onKey, true);
+    r(v);
+  }
+  function onKey(e){
+    if(e.key==="Escape"){ e.preventDefault(); finish(false); }
+    else if(e.key==="Enter" && e.target === btnOk()){ e.preventDefault(); finish(true); }
+  }
+  function open({ title, message, mode, danger }){
+    return new Promise(resolve=>{
+      if(resolver) finish(false);
+      resolver = resolve;
+      titleEl().textContent = title || (mode==="confirm" ? "Confirmar" : "Atenção");
+      msgEl().textContent = message || "";
+      const cancel = btnCancel();
+      const ok = btnOk();
+      cancel.classList.toggle("hidden", mode!=="confirm");
+      ok.textContent = mode==="confirm" ? "Confirmar" : "OK";
+      ok.className = "btn" + (danger ? " danger" : " teal");
+      root().hidden = false;
+      document.addEventListener("keydown", onKey, true);
+      setTimeout(()=> ok.focus(), 30);
+    });
+  }
+  $("modalBackdrop").onclick = ()=> finish(false);
+  $("modalCancel").onclick = ()=> finish(false);
+  $("modalOk").onclick = ()=> finish(true);
+  return {
+    alert: (message, opts={})=> open({ title: opts.title || "Atenção", message, mode:"alert", danger:false }).then(()=>undefined),
+    confirm: (message, opts={})=> open({ title: opts.title || "Confirmar", message, mode:"confirm", danger:!!opts.danger })
+  };
+})();
+
+function playAuthEnter(){
+  const el = $("vAuth");
+  el.classList.remove("enter-in");
+  void el.offsetWidth;
+  el.classList.add("enter-in");
+}
+function firstName(nome){
+  return ((nome||"").trim().split(/\s+/)[0] || "professor");
+}
+function closeMenus(){
+  closeDrawer();
+  closeUserMenu();
+}
+function closeDrawer(){
+  const d = $("drawer"), b = $("drawerBackdrop"), btn = $("btnMenu");
+  d.classList.remove("open");
+  b.classList.remove("open");
+  d.hidden = true; b.hidden = true;
+  d.setAttribute("aria-hidden","true");
+  btn.setAttribute("aria-expanded","false");
+}
+function openDrawer(){
+  closeUserMenu();
+  const d = $("drawer"), b = $("drawerBackdrop"), btn = $("btnMenu");
+  d.hidden = false; b.hidden = false;
+  void d.offsetWidth;
+  d.classList.add("open");
+  b.classList.add("open");
+  d.setAttribute("aria-hidden","false");
+  btn.setAttribute("aria-expanded","true");
+}
+function closeUserMenu(){
+  $("userDd").classList.add("hidden");
+  $("btnUserMenu").setAttribute("aria-expanded","false");
+}
+function toggleUserMenu(){
+  const open = $("userDd").classList.contains("hidden");
+  closeDrawer();
+  $("userDd").classList.toggle("hidden", !open);
+  $("btnUserMenu").setAttribute("aria-expanded", open ? "true" : "false");
+}
+function setShellLogged(logged){
+  $("topNav").classList.toggle("hidden", !logged);
+  $("btnMenu").classList.toggle("hidden", !logged);
+  $("userMenu").classList.toggle("hidden", !logged);
+  if(!logged) closeMenus();
+}
+function setNavActive(v){
+  const home = v==="vWelcome" || v==="vStart" || v==="vRes";
+  const hist = v==="vHist";
+  document.querySelectorAll("[data-nav]").forEach(el=>{
+    const on = (el.dataset.nav==="home" && home && v==="vWelcome") || (el.dataset.nav==="hist" && hist);
+    el.classList.toggle("is-active", on);
+  });
+}
+function goHome(){
+  if(currentView==="vEval"){ toast("Finalize ou cancele a avaliação primeiro"); return; }
+  show("vWelcome");
+}
+function renderWelcome(){
+  $("welcomeTitle").textContent = "Olá, " + firstName(profNomeLogado());
+  const n = hist.length;
+  $("statTotal").textContent = n ? String(n) : "0";
+  if(n){
+    const media = hist.reduce((a,r)=>a+Number(r.nota||0),0)/n;
+    $("statMedia").textContent = fmt(media);
+    $("statCrit").textContent = String(hist.filter(r=>r.crit).length);
+  } else {
+    $("statMedia").textContent = "—";
+    $("statCrit").textContent = "0";
+  }
+  const recent = hist.slice(0,5);
+  const box = $("hubRecent");
+  if(!recent.length){
+    box.innerHTML = `<div class="empty">Nenhuma avaliação ainda. Inicie pelo módulo Desafio Clínico.</div>`;
+    return;
+  }
+  box.innerHTML = recent.map((r,i)=>`<button type="button" class="h" data-i="${i}"><div><strong>${r.nome}</strong><small>Estação ${r.st} · ${new Date(r.data).toLocaleString("pt-BR",{dateStyle:"short",timeStyle:"short"})}${r.crit?` <span class="badge">Crítico</span>`:""}</small></div><span class="g">${fmt(r.nota)}</span></button>`).join("");
+  box.querySelectorAll(".h").forEach(b=>b.onclick=()=>showResult(recent[+b.dataset.i]));
+}
+function show(v){
+  currentView = v;
+  closeMenus();
+  ["vAuth","vWelcome","vStart","vEval","vRes","vHist"].forEach(x=>$(x).classList.toggle("hidden", x!==v));
+  $("bar").classList.toggle("hidden", v!=="vEval");
+  $("wrap").classList.toggle("is-auth", v==="vAuth");
+  document.body.classList.toggle("is-auth", v==="vAuth");
+  if(v==="vAuth") playAuthEnter();
+  if(v==="vWelcome") renderWelcome();
+  const logged = !!sessionUser && v!=="vAuth";
+  setShellLogged(logged);
+  setNavActive(v);
+  window.scrollTo(0,0);
+}
+
+function resetStartForm(){
+  $("inNome").value=""; $("inRA").value=""; chosen=null;
+  $("drumNum").textContent="?"; $("drumNm").textContent="Toque em sortear";
+  renderStList(); checkStart();
+}
+
+function setAuthMode(cad){
+  $("cardLogin").classList.toggle("hidden", cad);
+  $("cardCad").classList.toggle("hidden", !cad);
+  $("authTitle").textContent = cad ? "Cadastrar professor" : "Entrar";
+  $("authLead").textContent = cad ? "Nome completo, e-mail e senha." : "Acesso exclusivo para professores avaliadores.";
+  $("authErr").textContent = "";
+  $("cadErr").textContent = "";
+}
+$("btnShowCad").onclick = ()=> setAuthMode(true);
+$("btnShowLogin").onclick = ()=> setAuthMode(false);
+
+document.querySelectorAll(".eye[data-pw]").forEach(btn=>{
+  btn.onclick = ()=>{
+    const input = $(btn.dataset.pw);
+    if(!input) return;
+    const show = input.type === "password";
+    input.type = show ? "text" : "password";
+    btn.setAttribute("aria-pressed", show ? "true" : "false");
+    btn.setAttribute("aria-label", show ? "Ocultar senha" : "Mostrar senha");
+    btn.textContent = show ? "🙈" : "👁";
+  };
+});
+
+async function loadMeProf(){
+  if(!sessionUser){ meProf = null; return; }
+  const { data, error } = await sb.from("professores").select("id,nome_completo,email,avatar_url").eq("id", sessionUser.id).maybeSingle();
+  if(error){ console.error(error); toast("Erro ao carregar perfil"); }
+  meProf = data || {
+    id: sessionUser.id,
+    nome_completo: sessionUser.user_metadata?.nome_completo || sessionUser.email || "Professor",
+    email: sessionUser.email || "",
+    avatar_url: sessionUser.user_metadata?.avatar_url || null
+  };
+}
+
+function profNomeLogado(){
+  return meProf?.nome_completo || sessionUser?.user_metadata?.nome_completo || sessionUser?.email || "Professor";
+}
+function profAvatarUrl(){
+  return meProf?.avatar_url || sessionUser?.user_metadata?.avatar_url || "";
+}
+
+function setWhoami(nome){
+  const label = (nome||"").trim();
+  const first = label.split(/\s+/)[0] || "?";
+  const inicial = first.charAt(0).toUpperCase();
+  const url = (profAvatarUrl()||"").trim();
+  $("btnUserMenu").title = label;
+  $("userNm").textContent = first;
+  const av = $("userAv");
+  if(url){
+    av.classList.add("has-photo");
+    av.innerHTML = `<img src="${url}" alt="">`;
+  } else {
+    av.classList.remove("has-photo");
+    av.textContent = inicial;
+  }
+  $("btnFotoRemover").classList.toggle("hidden", !url);
+}
+
+function setSession(user){
+  sessionUser = user;
+  if(user){
+    setWhoami(profNomeLogado());
+    setShellLogged(true);
+  } else {
+    meProf = null;
+    $("userAv").classList.remove("has-photo");
+    $("userAv").textContent = "?";
+    $("userNm").textContent = "—";
+    $("btnUserMenu").title = "";
+    $("btnFotoRemover").classList.add("hidden");
+    setShellLogged(false);
+  }
+}
+
+function fileToJpegBlob(file, maxSide=512, quality=0.85){
+  return new Promise((resolve, reject)=>{
+    const img = new Image();
+    const obj = URL.createObjectURL(file);
+    img.onload = ()=>{
+      URL.revokeObjectURL(obj);
+      let w = img.naturalWidth, h = img.naturalHeight;
+      const scale = Math.min(1, maxSide / Math.max(w, h));
+      w = Math.round(w * scale); h = Math.round(h * scale);
+      const canvas = document.createElement("canvas");
+      canvas.width = w; canvas.height = h;
+      const ctx = canvas.getContext("2d");
+      ctx.fillStyle = "#fff";
+      ctx.fillRect(0,0,w,h);
+      ctx.drawImage(img, 0, 0, w, h);
+      canvas.toBlob(b => b ? resolve(b) : reject(new Error("Falha ao processar imagem")), "image/jpeg", quality);
+    };
+    img.onerror = ()=>{ URL.revokeObjectURL(obj); reject(new Error("Imagem inválida")); };
+    img.src = obj;
+  });
+}
+
+async function saveAvatarUrl(url){
+  const { error } = await sb.from("professores").update({ avatar_url: url }).eq("id", sessionUser.id);
+  if(error) throw error;
+  if(meProf) meProf.avatar_url = url;
+  try{ await sb.auth.updateUser({ data: { avatar_url: url || null } }); }catch(_){}
+}
+
+async function uploadAvatar(file){
+  if(!sessionUser) return;
+  if(!file || !file.type.startsWith("image/")){ toast("Escolha uma imagem"); return; }
+  if(file.size > 8 * 1024 * 1024){ toast("Imagem muito grande (máx. 8 MB)"); return; }
+  $("btnFoto").disabled = true;
+  $("btnFotoRemover").disabled = true;
+  try{
+    const blob = await fileToJpegBlob(file);
+    const path = `${sessionUser.id}/avatar.jpg`;
+    const { error: upErr } = await sb.storage.from("avatars").upload(path, blob, {
+      upsert: true,
+      contentType: "image/jpeg",
+      cacheControl: "3600"
+    });
+    if(upErr) throw upErr;
+    const { data } = sb.storage.from("avatars").getPublicUrl(path);
+    const url = `${data.publicUrl}?v=${Date.now()}`;
+    await saveAvatarUrl(url);
+    setWhoami(profNomeLogado());
+    toast("Foto atualizada");
+  }catch(e){
+    console.error(e);
+    toast(e.message || "Não foi possível enviar a foto");
+  }finally{
+    $("btnFoto").disabled = false;
+    $("btnFotoRemover").disabled = false;
+    $("inAvatar").value = "";
+  }
+}
+
+async function removeAvatar(){
+  if(!sessionUser) return;
+  if(!await dlg.confirm("Remover a foto de perfil?", { title: "Remover foto", danger: true })) return;
+  $("btnFoto").disabled = true;
+  $("btnFotoRemover").disabled = true;
+  try{
+    await sb.storage.from("avatars").remove([`${sessionUser.id}/avatar.jpg`]);
+    await saveAvatarUrl(null);
+    setWhoami(profNomeLogado());
+    toast("Foto removida");
+  }catch(e){
+    console.error(e);
+    toast(e.message || "Não foi possível remover a foto");
+  }finally{
+    $("btnFoto").disabled = false;
+    $("btnFotoRemover").disabled = false;
+  }
+}
+
+async function enterProfArea(){
+  await loadMeProf();
+  setSession(sessionUser);
+  renderPool(); renderStList();
+  checkStart();
+  show("vWelcome");
+  fetchHist().then(()=>{ if(currentView==="vWelcome") renderWelcome(); }).catch(()=>{});
+}
+
+async function openHistorico(){
+  if(!sessionUser){ show("vAuth"); return; }
+  if(currentView==="vEval"){ toast("Finalize ou cancele a avaliação primeiro"); return; }
+  $("hList").innerHTML = `<div class="empty">Carregando…</div>`;
+  show("vHist");
+  await fetchHist();
+  renderHist();
+}
+
+function startNovaAvaliacao(){
+  if(currentView==="vEval"){ toast("Finalize ou cancele a avaliação primeiro"); return; }
+  resetStartForm();
+  show("vStart");
+  setTimeout(()=>$("inNome").focus(),100);
+}
+
+$("btnWelcomeNova").onclick = ()=> startNovaAvaliacao();
+$("btnWelcomeHist").onclick = ()=> openHistorico();
+$("btnVoltarWelcome").onclick = ()=> show("vWelcome");
+$("btnBrand").onclick = ()=> goHome();
+$("navHome").onclick = ()=> goHome();
+$("drawerHome").onclick = ()=> goHome();
+$("navHist").onclick = ()=> openHistorico();
+$("drawerHist").onclick = ()=> openHistorico();
+$("btnMenu").onclick = ()=>{
+  if($("drawer").classList.contains("open")) closeDrawer();
+  else openDrawer();
+};
+$("drawerBackdrop").onclick = ()=> closeDrawer();
+$("btnUserMenu").onclick = e=>{ e.stopPropagation(); toggleUserMenu(); };
+$("btnFoto").onclick = e=>{
+  e.stopPropagation();
+  closeUserMenu();
+  $("inAvatar").click();
+};
+$("btnFotoRemover").onclick = async e=>{
+  e.stopPropagation();
+  closeUserMenu();
+  await removeAvatar();
+};
+$("inAvatar").onchange = e=>{
+  const file = e.target.files && e.target.files[0];
+  if(file) uploadAvatar(file);
+};
+document.addEventListener("click", e=>{
+  if(!$("userMenu").contains(e.target)) closeUserMenu();
+});
+document.addEventListener("keydown", e=>{
+  if(e.key==="Escape") closeMenus();
+});
+
+function authMsg(err){
+  const m = (err && (err.message || err.error_description || String(err))) || "Erro de autenticação.";
+  const low = m.toLowerCase();
+  if(low.includes("rate limit") || low.includes("over_email_send_rate_limit") || low.includes("429"))
+    return "Limite de cadastros/e-mails atingido. Aguarde cerca de 1 hora ou crie o usuário em Authentication → Users no painel do Supabase.";
+  if(low.includes("invalid login") || low.includes("invalid credentials"))
+    return "E-mail ou senha incorretos.";
+  if(low.includes("user already registered") || low.includes("already been registered"))
+    return "Este e-mail já está cadastrado. Faça login.";
+  if(low.includes("email not confirmed"))
+    return "E-mail ainda não confirmado. No painel do Supabase, confirme o usuário ou desative a confirmação.";
+  return m;
+}
+
+$("btnLogin").onclick = async ()=>{
+  $("authErr").textContent = "";
+  const email = $("inEmail").value.trim();
+  const password = $("inSenha").value;
+  if(!email || !password){ $("authErr").textContent = "Informe e-mail e senha."; return; }
+  $("btnLogin").disabled = true;
+  const { data, error } = await sb.auth.signInWithPassword({ email, password });
+  $("btnLogin").disabled = false;
+  if(error){ $("authErr").textContent = authMsg(error); return; }
+  sessionUser = data.user;
+  await enterProfArea();
+};
+
+$("btnCadastrar").onclick = async ()=>{
+  $("cadErr").textContent = "";
+  const nome_completo = $("inNomeProf").value.trim();
+  const email = $("inEmailCad").value.trim();
+  const password = $("inSenhaCad").value;
+  const password2 = $("inSenhaCad2").value;
+  if(!nome_completo || !email || !password || !password2){ $("cadErr").textContent = "Preencha nome, e-mail e senha."; return; }
+  if(password.length < 6){ $("cadErr").textContent = "A senha precisa ter ao menos 6 caracteres."; return; }
+  if(password !== password2){ $("cadErr").textContent = "As senhas não coincidem."; return; }
+  $("btnCadastrar").disabled = true;
+  const { data, error } = await sb.auth.signUp({
+    email, password,
+    options: { data: { nome_completo } }
+  });
+  $("btnCadastrar").disabled = false;
+  if(error){ $("cadErr").textContent = authMsg(error); return; }
+  if(data.session && data.user){
+    sessionUser = data.user;
+    toast("Conta criada");
+    await enterProfArea();
+    return;
+  }
+  setAuthMode(false);
+  $("inEmail").value = email;
+  toast("Conta criada. Faça login.");
+};
+
+$("btnSair").onclick = async ()=>{
+  if(running) stopTimer();
+  await sb.auth.signOut();
+  sessionUser = null;
+  hist = [];
+  setSession(null);
+  setAuthMode(false);
+  show("vAuth");
+};
+
+/* ---------- Tela inicial ---------- */
+function renderPool(){
+  $("pool").innerHTML = ST.map(s=>`<span class="chip ${used.includes(s.n)?"used":""}">E${s.n}</span>`).join("");
+}
+function renderStList(){
+  $("stList").innerHTML = ST.map(s=>`<button class="st ${chosen===s.n?"sel":""}" data-n="${s.n}"><b>${s.n}</b><span>${s.nome}</span></button>`).join("");
+  $("stList").querySelectorAll(".st").forEach(b=>b.onclick=()=>pick(+b.dataset.n));
+}
+function pick(n){
+  chosen = n;
+  const s = ST[n-1];
+  $("drumNum").textContent = n;
+  $("drumNm").textContent = s.nome;
+  renderStList();
+  checkStart();
+}
+function checkStart(){
+  $("btnIniciar").disabled = !(chosen && $("inNome").value.trim() && sessionUser);
+}
+$("inNome").addEventListener("input", checkStart);
+
+$("btnSortear").onclick = ()=>{
+  let pool = ST.map(s=>s.n).filter(n=>!used.includes(n));
+  if(!pool.length){ used=[]; pool=ST.map(s=>s.n); }
+  const final = pool[Math.floor(Math.random()*pool.length)];
+  const d = $("drum"); d.classList.add("spin");
+  $("btnSortear").disabled = true;
+  let i=0; const steps=14;
+  const iv = setInterval(()=>{
+    $("drumNum").textContent = 1+Math.floor(Math.random()*7);
+    $("drumNm").textContent = "Sorteando…";
+    if(++i>=steps){
+      clearInterval(iv); d.classList.remove("spin");
+      used.push(final); save("dc_used", used); renderPool();
+      pick(final); $("btnSortear").disabled=false;
+      if(navigator.vibrate) navigator.vibrate(40);
+    }
+  }, 70);
+};
+
+$("btnIniciar").onclick = ()=>{
+  if(!sessionUser){ show("vAuth"); return; }
+  cur = {
+    profId: sessionUser.id,
+    prof: profNomeLogado(),
+    nome: $("inNome").value.trim(),
+    ra: $("inRA").value.trim(),
+    st: chosen,
+    ans: {},
+    crit: false,
+    obs: ""
+  };
+  startEval();
+};
+
+/* ---------- Avaliação ---------- */
+function startEval(){
+  const s = ST[cur.st-1];
+  $("evAluno").textContent = cur.nome + (cur.ra ? " · RA " + cur.ra : "") + " · Prof. " + cur.prof;
+  $("evTitulo").textContent = `Estação ${s.n} · ${s.nome}`;
+  $("evCaso").innerHTML = `<p>${s.caso}</p>`;
+  $("evInter").innerHTML = `<p class="sub">Intercorrência</p><p>${s.inter}</p><p class="sub" style="color:var(--orange)">Resposta esperada</p><p>${s.gab}</p><p class="sub">Nota docente</p><p>${s.nota}</p>`;
+  $("chkCrit").checked = false; $("inObs").value = "";
+  $("items").innerHTML = BASE.map((b,i)=>{
+    const crit = b.k==="inter" ? `Reconhece o problema, interrompe quando necessário e descreve a conduta segura.` : (b.d || s.c[b.k]);
+    const gab = b.k==="inter" ? `<div class="gab"><p class="sub">${s.inter}</p>${s.gab}</div>` : "";
+    return `<div class="item" id="it${i}" data-k="${b.k}">
+      <div class="ih"><div class="n">${i+1}</div><h3>${b.t}</h3></div>
+      <p class="crit">${crit}</p>${gab}
+      <div class="seg">
+        <button class="ok" data-v="ok">Correto<span>1</span></button>
+        <button class="mid" data-v="mid">Parcial<span>0,5</span></button>
+        <button class="bad" data-v="bad">Incorreto<span>0</span></button>
+      </div></div>`;
+  }).join("");
+  $("items").querySelectorAll(".item").forEach((el,i)=>{
+    el.querySelectorAll(".seg button").forEach(btn=>btn.onclick=()=>{
+      const v = btn.dataset.v, k = el.dataset.k;
+      const firstTime = !cur.ans[k];
+      cur.ans[k] = v;
+      el.querySelectorAll(".seg button").forEach(x=>x.classList.toggle("on", x===btn));
+      el.classList.remove("s-ok","s-mid","s-bad"); el.classList.add("s-"+v,"done");
+      updateBar();
+      if(firstTime){
+        const next = [...$("items").querySelectorAll(".item")].find(x=>!cur.ans[x.dataset.k]);
+        if(next) setTimeout(()=>next.scrollIntoView({behavior:"smooth", block:"start"}), 180);
+      }
+    });
+  });
+  resetTimer();
+  updateBar();
+  show("vEval");
+}
+function calc(a){ return Object.values(a).reduce((s,v)=>s+(VAL[v]||0),0); }
+function updateBar(){
+  const n = Object.keys(cur.ans).length;
+  $("bNota").textContent = fmt(calc(cur.ans));
+  $("bProg").textContent = `${n} de 10`;
+  $("bFill").style.width = (n*10)+"%";
+  $("btnFinalizar").disabled = n===0 && !running && elapsed===0;
+  $("btnFinalizar").textContent = n<10 ? "Encerrar" : "Finalizar";
+}
+$("chkCrit").onchange = e=> cur.crit = e.target.checked;
+$("inObs").oninput = e=> cur.obs = e.target.value;
+$("btnCancelar").onclick = async ()=>{
+  if(!await dlg.confirm("Cancelar esta avaliação? As marcações serão perdidas.", { title: "Cancelar avaliação", danger: true })) return;
+  stopTimer();
+  show("vWelcome");
+};
+
+$("btnFinalizar").onclick = async ()=>{
+  const n = Object.keys(cur.ans).length;
+  if(n<10 && !await dlg.confirm(`Encerrar com ${n} de 10 critérios avaliados? Os itens não marcados valem 0.`, { title: "Encerrar avaliação", danger: true })) return;
+  finalize(false);
+};
+async function finalize(porTempo){
+  stopTimer();
+  const s = ST[cur.st-1];
+  const rec = {id:Date.now(), data:new Date().toISOString(), profId:cur.profId, prof:cur.prof, nome:cur.nome, ra:cur.ra, st:s.n, stNome:s.nome,
+    ans:{...cur.ans}, nota:calc(cur.ans), crit:cur.crit, obs:cur.obs.trim(), tempo:elapsed,
+    dur:durMin, porTempo:!!porTempo, avaliados:Object.keys(cur.ans).length};
+  hist.unshift(rec);
+  showResult(rec);
+  if(porTempo){ if(navigator.vibrate) navigator.vibrate([300,120,300]); toast("Tempo esgotado: avaliação encerrada"); }
+  try{
+    const payload = {
+      professor_id: cur.profId,
+      aluno_nome: cur.nome,
+      aluno_ra: cur.ra || null,
+      estacao: s.n,
+      estacao_nome: s.nome,
+      respostas: {...cur.ans},
+      nota: rec.nota,
+      erro_critico: !!cur.crit,
+      observacoes: rec.obs || null,
+      tempo_segundos: elapsed,
+      duracao_min: durMin,
+      encerrada_por_tempo: !!porTempo,
+      criterios_avaliados: rec.avaliados
+    };
+    const { error } = await sb.from("avaliacoes").insert(payload);
+    if(error) throw error;
+    if(!porTempo) toast("Avaliação salva na nuvem");
+  }catch(e){
+    console.error(e);
+    toast("Salva localmente; falha ao enviar à nuvem");
+  }
+}
+
+/* ---------- Resultado ---------- */
+let lastRec = null;
+function showResult(r){
+  lastRec = r;
+  $("rNota").textContent = fmt(r.nota);
+  $("rNota").style.color = r.nota>=7 ? "var(--ok)" : r.nota>=5 ? "var(--mid)" : "var(--bad)";
+  $("rWho").textContent = r.nome + (r.ra ? " · RA " + r.ra : "");
+  $("rProf").textContent = r.prof ? "Avaliador: " + r.prof : "";
+  $("rSt").textContent = `Estação ${r.st} · ${r.stNome} · ${new Date(r.data).toLocaleString("pt-BR",{dateStyle:"short",timeStyle:"short"})}`;
+  const n = r.avaliados ?? Object.keys(r.ans).length;
+  $("rFlag").innerHTML = (r.crit ? `<span class="flag">Erro crítico registrado</span> ` : "")
+    + (r.porTempo ? `<span class="flag time">Encerrada por tempo · ${n} de 10 avaliados</span>` : (n<10 ? `<span class="flag time">${n} de 10 avaliados</span>` : ""));
+  $("rList").innerHTML = BASE.map((b,i)=>{const v=r.ans[b.k];return `<div class="r"><b>${i+1}</b><span>${b.t}</span><em class="pill ${v||"na"}" style="font-style:normal">${lbl(v)}</em></div>`;}).join("");
+  $("rObsCard").classList.toggle("hidden", !r.obs);
+  $("rObs").textContent = r.obs;
+  show("vRes");
+}
+function recText(r){
+  const lines = [`Desafio Clínico UNIRP`,`Avaliador: ${r.prof||"—"}`,`Aluno: ${r.nome}${r.ra?" (RA "+r.ra+")":""}`,`Estação ${r.st}: ${r.stNome}`,`Nota: ${fmt(r.nota)} / 10${r.crit?" — ERRO CRÍTICO":""}`,""];
+  BASE.forEach((b,i)=>lines.push(`${i+1}. ${b.t}: ${lbl(r.ans[b.k])}`));
+  if(r.porTempo) lines.splice(5,0,"Encerrada por tempo");
+  if(r.obs) lines.push("", "Observações: "+r.obs);
+  return lines.join("\n");
+}
+async function copy(txt){
+  try{ await navigator.clipboard.writeText(txt); toast("Copiado"); }
+  catch(e){
+    const ta=document.createElement("textarea"); ta.value=txt; document.body.appendChild(ta); ta.select();
+    try{ document.execCommand("copy"); toast("Copiado"); }catch(_){ toast("Não foi possível copiar"); }
+    ta.remove();
+  }
+}
+$("btnCopiar1").onclick = ()=> lastRec && copy(recText(lastRec));
+$("btnNovo").onclick = ()=>{
+  resetStartForm();
+  show("vStart");
+  setTimeout(()=>$("inNome").focus(),100);
+};
+
+/* ---------- Histórico ---------- */
+function mapAvaliacao(row){
+  return {
+    id: row.id,
+    data: row.created_at,
+    profId: row.professor_id,
+    prof: row.professores?.nome_completo || (row.professor_id===sessionUser?.id ? profNomeLogado() : ""),
+    nome: row.aluno_nome,
+    ra: row.aluno_ra || "",
+    st: row.estacao,
+    stNome: row.estacao_nome,
+    ans: row.respostas || {},
+    nota: Number(row.nota),
+    crit: !!row.erro_critico,
+    obs: row.observacoes || "",
+    tempo: row.tempo_segundos || 0,
+    dur: row.duracao_min || 15,
+    porTempo: !!row.encerrada_por_tempo,
+    avaliados: row.criterios_avaliados ?? Object.keys(row.respostas||{}).length
+  };
+}
+async function fetchHist(){
+  const { data, error } = await sb.from("avaliacoes")
+    .select("*,professores(nome_completo)")
+    .order("created_at", { ascending: false });
+  if(error){ console.error(error); toast("Erro ao carregar histórico"); hist = []; return; }
+  hist = (data||[]).map(mapAvaliacao);
+}
+function histFiltrado(){
+  const q = histFiltro.trim().toLowerCase();
+  return hist.filter(r=>{
+    if(q && !(r.nome||"").toLowerCase().includes(q) && !(r.ra||"").toLowerCase().includes(q)) return false;
+    if(histFiltroSt && String(r.st)!==String(histFiltroSt)) return false;
+    if(histFiltroCrit==="1" && !r.crit) return false;
+    if(histFiltroCrit==="0" && r.crit) return false;
+    return true;
+  });
+}
+function renderHist(){
+  const list = histFiltrado();
+  const filtered = !!(histFiltro.trim() || histFiltroSt || histFiltroCrit);
+  $("hLead").textContent = hist.length
+    ? `${hist.length} ${hist.length===1?"avaliação":"avaliações"} na nuvem${filtered?` · ${list.length} no filtro`:""}.`
+    : "Nenhuma avaliação salva ainda.";
+  if(!list.length){ $("hList").innerHTML = `<div class="empty">${hist.length?"Nenhum resultado para o filtro.":"Nenhuma avaliação salva ainda."}</div>`; return; }
+  $("hList").innerHTML = list.map((r,i)=>`<button type="button" class="h" data-i="${i}"><div><div class="row1"><strong>${r.nome}</strong>${r.crit?`<span class="badge">Crítico</span>`:""}</div><span class="meta">RA ${r.ra||"—"} · Estação ${r.st} · ${r.prof||"—"}</span><span class="meta">${new Date(r.data).toLocaleString("pt-BR",{dateStyle:"short",timeStyle:"short"})}</span></div><span class="g">${fmt(r.nota)}</span></button>`).join("");
+  $("hList").querySelectorAll(".h").forEach(b=>b.onclick=()=>showResult(list[+b.dataset.i]));
+}
+$("inFiltro").addEventListener("input", e=>{ histFiltro = e.target.value; renderHist(); });
+$("inFiltroSt").addEventListener("change", e=>{ histFiltroSt = e.target.value; renderHist(); });
+$("inFiltroCrit").addEventListener("change", e=>{ histFiltroCrit = e.target.value; renderHist(); });
+function tabela(){
+  const head = ["Data","Professor","Aluno","RA","Estação","Tempo (min)",...BASE.map((b,i)=>`${i+1}. ${b.t}`),"Critérios avaliados","Nota","Encerrada por tempo","Erro crítico","Observações"];
+  const rows = histFiltrado().slice().reverse().map(r=>[
+    new Date(r.data).toLocaleString("pt-BR",{dateStyle:"short",timeStyle:"short"}), r.prof||"", r.nome, r.ra||"", `E${r.st} - ${r.stNome}`, r.dur||15,
+    ...BASE.map(b=>lbl(r.ans[b.k])), `${r.avaliados ?? Object.keys(r.ans).length} de 10`, fmt(r.nota),
+    r.porTempo?"Sim":"Não", r.crit?"Sim":"Não", (r.obs||"").replace(/\s+/g," ")
+  ]);
+  return [head,...rows];
+}
+$("btnCopiarTodos").onclick = ()=>{
+  if(!hist.length) return toast("Histórico vazio");
+  copy(tabela().map(x=>x.join("\t")).join("\n"));
+};
+const csvCell = v => { v = String(v); return /[";\n]/.test(v) ? `"${v.replace(/"/g,'""')}"` : v; };
+let dlCap; // undefined = ainda não verificado
+async function getDownloads(){
+  if(dlCap !== undefined) return dlCap;
+  try{ dlCap = (window.claude && window.claude.use) ? await window.claude.use("downloads") : null; }catch(e){ dlCap = null; }
+  return dlCap;
+}
+$("btnBaixar").onclick = async ()=>{
+  if(!hist.length) return toast("Histórico vazio");
+  const csv = "\uFEFF" + tabela().map(r=>r.map(csvCell).join(";")).join("\r\n");
+  const hoje = new Date().toLocaleDateString("pt-BR").replace(/\//g,"-");
+  const filename = `Desafio_Clinico_notas_${hoje}.csv`;
+  const dl = await getDownloads();
+  if(dl){
+    try{ await dl.save({filename, data:new Blob([csv],{type:"text/csv"})}); toast("Planilha baixada"); }
+    catch(e){ if(e && e.code==="declined") return; semDownload(); }
+    return;
+  }
+  if(window.claude){ semDownload(); return; }
+  try{
+    const url = URL.createObjectURL(new Blob([csv],{type:"text/csv;charset=utf-8"}));
+    const a = document.createElement("a"); a.href=url; a.download=filename; document.body.appendChild(a); a.click(); a.remove();
+    setTimeout(()=>URL.revokeObjectURL(url), 2000); toast("Planilha baixada");
+  }catch(e){ toast("Não foi possível baixar. Use “Copiar tudo”."); }
+};
+async function semDownload(){
+  copy(tabela().map(x=>x.join("\t")).join("\n"));
+  await dlg.alert("O download não está liberado nesta visualização, então a planilha foi copiada. Cole no Excel, no Google Planilhas ou nas Notas do celular.\n\nPara baixar o arquivo direto, abra o avaliador pelo arquivo .html no navegador.", { title: "Planilha copiada" });
+}
+$("btnLimpar").onclick = async ()=>{
+  if(!await dlg.confirm("Reiniciar apenas o sorteio local deste aparelho? As avaliações na nuvem não serão apagadas.", { title: "Reiniciar sorteio", danger: true })) return;
+  used=[]; save("dc_used",used); renderPool(); toast("Sorteio reiniciado");
+};
+
+/* ---------- Cronômetro ---------- */
+// Fases proporcionais ao roteiro original de 15 min (2 + 8 + 2 + 2 + 1)
+const FASES = [
+  {f:2,  t:"Leitura do caso", s:"Apresente o caso ao aluno"},
+  {f:8,  t:"Execução da técnica", s:"Observe e marque os critérios"},
+  {f:2,  t:"Revele a intercorrência", s:"Apresente a intercorrência", alert:true},
+  {f:2,  t:"Resposta à intercorrência", s:"Avalie o critério 9"},
+  {f:1,  t:"Finalização", s:"Descarte e anotação"}
+];
+let durMin = load("dc_dur", 15);
+let TOTAL = durMin*60, PH = [];
+function buildPhases(){
+  TOTAL = durMin*60; let acc = 0; PH = [];
+  FASES.forEach((p,i)=>{
+    const len = i===FASES.length-1 ? TOTAL-acc : Math.round(TOTAL*p.f/15);
+    const m = Math.floor(len/60), sec = len%60;
+    PH.push({a:acc, b:acc+len, t:p.t, s:`${sec ? m+"min"+String(sec).padStart(2,"0") : m+" min"} · ${p.s}`, alert:p.alert});
+    acc += len;
+  });
+}
+function renderDur(){
+  $("dur").querySelectorAll("button").forEach(b=>{
+    b.classList.toggle("on", +b.dataset.m===durMin);
+    b.disabled = running || elapsed>0;
+  });
+}
+$("dur").querySelectorAll("button").forEach(b=>b.onclick=()=>{
+  if(running || elapsed>0) return;
+  durMin = +b.dataset.m; save("dc_dur", durMin); resetTimer();
+});
+let elapsed=0, tick=null, running=false, lastPh=-1;
+function resetTimer(){
+  stopTimer(); elapsed=0; lastPh=-1; buildPhases(); renderTimer();
+  $("tBtn").textContent="Iniciar"; $("tBtn").disabled=false;
+  $("tPh").innerHTML=`<strong>Pronto para começar</strong>${durMin} minutos no total`;
+  $("timer").classList.remove("alert","over"); renderDur();
+}
+function stopTimer(){ clearInterval(tick); tick=null; running=false; }
+function renderTimer(){
+  const left = Math.max(0, TOTAL-elapsed);
+  $("tVal").textContent = String(Math.floor(left/60)).padStart(2,"0")+":"+String(left%60).padStart(2,"0");
+  $("timer").classList.toggle("over", left<=60 && elapsed>0);
+  if(!running && elapsed===0) return;
+  const idx = PH.findIndex(p=>elapsed>=p.a && elapsed<p.b);
+  const p = idx>=0 ? PH[idx] : {t:"Tempo esgotado", s:"Encerrando avaliação"};
+  $("tPh").innerHTML = `<strong>${p.t}</strong>${p.s}`;
+  $("timer").classList.toggle("alert", !!p.alert);
+  if(idx!==lastPh){ if(lastPh!==-1 && navigator.vibrate) navigator.vibrate(p.alert?[200,100,200]:120); lastPh=idx; }
+}
+$("tBtn").onclick = ()=>{
+  if(running){ stopTimer(); $("tBtn").textContent="Retomar"; return; }
+  running=true; $("tBtn").textContent="Pausar"; renderTimer(); renderDur(); updateBar();
+  tick=setInterval(()=>{
+    elapsed++; renderTimer();
+    if(elapsed>=TOTAL){ stopTimer(); $("tBtn").disabled=true; finalize(true); }
+  },1000);
+};
+
+/* ---------- Tema claro/escuro ---------- */
+/* Default permanece "auto" (segue o sistema). O botão só alterna claro ↔ escuro. */
+let tema = load("dc_tema","auto");
+function temaEfetivo(){
+  if(tema==="claro" || tema==="escuro") return tema;
+  return matchMedia("(prefers-color-scheme: dark)").matches ? "escuro" : "claro";
+}
+function aplicaTema(){
+  const r = document.documentElement;
+  if(tema==="auto") r.removeAttribute("data-theme");
+  else r.setAttribute("data-theme", tema==="claro" ? "light" : "dark");
+  const efetivo = temaEfetivo();
+  const btn = $("btnTema");
+  btn.textContent = efetivo==="claro" ? "☀︎ Modo claro" : "☾ Modo escuro";
+  btn.title = efetivo==="claro" ? "Toque para escuro" : "Toque para claro";
+}
+$("btnTema").onclick = ()=>{
+  tema = temaEfetivo()==="claro" ? "escuro" : "claro";
+  save("dc_tema", tema); aplicaTema();
+  closeUserMenu();
+  toast(tema==="claro" ? "Modo claro" : "Modo escuro");
+};
+aplicaTema();
+
+(async function boot(){
+  renderPool(); renderStList();
+  const { data: { session } } = await sb.auth.getSession();
+  if(session?.user){
+    sessionUser = session.user;
+    await enterProfArea();
+  } else {
+    setAuthMode(false);
+    show("vAuth");
+  }
+  sb.auth.onAuthStateChange(async (event, sess)=>{
+    if(event==="SIGNED_OUT"){
+      sessionUser = null;
+      hist = [];
+      setSession(null);
+      setAuthMode(false);
+      show("vAuth");
+    } else if(event==="SIGNED_IN" && sess?.user){
+      sessionUser = sess.user;
+    }
+  });
+})();
+</script>
+</body>
+</html>
