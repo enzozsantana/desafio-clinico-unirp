@@ -153,8 +153,8 @@ body.is-auth .wrap{
 .toolbar{display:grid;gap:10px;margin:0 0 14px}
 .toolbar.toolbar-top{grid-template-columns:1fr 1fr}
 @media (max-width:420px){.toolbar.toolbar-top{grid-template-columns:1fr}}
-.hist-tools{display:flex;flex-wrap:wrap;gap:8px;margin:0 0 14px;justify-content:center}
-.hist-tools .toolbtn{border:1px solid var(--line);background:var(--surface2);border-radius:8px;padding:8px 12px;height:36px;font-family:var(--font-ui);font-size:13px;font-weight:600;color:var(--ink);line-height:1;display:inline-flex;align-items:center;justify-content:center;gap:6px}
+.hist-tools{display:flex;flex-wrap:wrap;gap:8px;margin:0 0 14px;justify-content:center;align-items:stretch}
+.hist-tools .toolbtn{border:1px solid var(--line);background:var(--surface2);border-radius:8px;padding:10px 12px;min-height:40px;height:auto;box-sizing:border-box;font-family:var(--font-ui);font-size:13px;font-weight:600;color:var(--ink);line-height:1.2;display:inline-flex;align-items:center;justify-content:center;gap:6px;text-align:center}
 .hist-tools .toolbtn:hover{border-color:var(--red);color:var(--red);background:var(--red-soft)}
 .hist-tools .toolbtn.primary{background:var(--red);border-color:var(--red);color:#fff}
 .hist-tools .toolbtn.primary:hover{filter:brightness(1.05);color:#fff}
@@ -612,8 +612,8 @@ select:focus{border-color:var(--red);box-shadow:0 0 0 3px var(--red-soft)}
       <button type="button" class="iconbtn" id="btnHistNext">Próxima</button>
     </nav>
     <div class="hist-tools" aria-label="Ferramentas do histórico">
-      <button type="button" class="toolbtn primary" id="btnBaixar">Baixar planilha</button>
       <button type="button" class="toolbtn" id="btnLimpar">Limpar cache do sorteio</button>
+      <button type="button" class="toolbtn primary" id="btnBaixar">Baixar planilha</button>
     </div>
   </section>
 </main>
