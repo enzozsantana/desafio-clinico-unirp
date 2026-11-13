@@ -1009,7 +1009,7 @@ function renderWelcome(){
     box.innerHTML = `<div class="empty">Nenhuma avaliação ainda. Inicie pelo módulo Desafio Clínico.</div>`;
     return;
   }
-  box.innerHTML = recent.map((r,i)=>`<button type="button" class="h" data-i="${i}"><div><strong>${r.nome}</strong><small>Estação ${r.st} · ${new Date(r.data).toLocaleString("pt-BR",{dateStyle:"short",timeStyle:"short"})}${r.crit?` <span class="badge">Crítico</span>`:""}</small></div><span class="g">${fmt(r.nota)}</span></button>`).join("");
+  box.innerHTML = recent.map((r,i)=>`<button type="button" class="h" data-i="${i}"><div><strong>${r.nome}</strong><small>${periodoLabel(r.periodo)} · Estação ${r.st} · ${new Date(r.data).toLocaleString("pt-BR",{dateStyle:"short",timeStyle:"short"})}${r.crit?` <span class="badge">Crítico</span>`:""}</small></div><span class="g">${fmt(r.nota)}</span></button>`).join("");
   box.querySelectorAll(".h").forEach(b=>b.onclick=()=>showResult(recent[+b.dataset.i], true));
 }
 function show(v){
@@ -1773,7 +1773,7 @@ function renderHist(){
           <button type="button" class="iconbtn danger" data-act="del" data-i="${idx}">Excluir</button>
         </div>`
       : `<div class="h-actions"><button type="button" class="iconbtn" data-act="open" data-i="${idx}">Ver</button></div>`;
-    return `<div class="h" data-i="${idx}"><div class="h-main"><div><div class="row1"><strong>${r.nome}</strong>${r.crit?`<span class="badge">Crítico</span>`:""}</div><span class="meta">RA ${r.ra||"—"} · ${periodoLabel(r.periodo)}</span><span class="meta">Estação ${r.st} · ${new Date(r.data).toLocaleString("pt-BR",{dateStyle:"short",timeStyle:"short"})}</span></div><span class="g">${fmt(r.nota)}</span></div>${actions}</div>`;
+    return `<div class="h" data-i="${idx}"><div class="h-main"><div><div class="row1"><strong>${r.nome}</strong>${r.crit?`<span class="badge">Crítico</span>`:""}</div><span class="meta">RA ${r.ra||"—"} · Período ${periodoLabel(r.periodo)}</span><span class="meta">Estação ${r.st} · ${new Date(r.data).toLocaleString("pt-BR",{dateStyle:"short",timeStyle:"short"})}</span></div><span class="g">${fmt(r.nota)}</span></div>${actions}</div>`;
   }).join("");
   $("hList").querySelectorAll("[data-act]").forEach(b=>{
     b.onclick = ev=>{
