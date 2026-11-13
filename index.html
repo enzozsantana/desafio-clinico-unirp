@@ -103,15 +103,31 @@ body.is-auth .wrap{
 .user-dd button:hover{background:var(--surface2)}
 .user-dd button.danger{color:var(--bad)}
 .user-dd .sep{height:1px;background:var(--line);margin:4px 6px}
-.drawer-backdrop{position:fixed;inset:0;background:rgba(0,0,0,.4);z-index:40;opacity:0;pointer-events:none;transition:opacity .2s}
+.drawer-backdrop{position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:40;opacity:0;pointer-events:none;transition:opacity .2s;backdrop-filter:blur(2px)}
 .drawer-backdrop.open{opacity:1;pointer-events:auto}
-.drawer{position:fixed;top:0;left:0;bottom:0;width:min(300px,86vw);background:var(--surface);border-right:1px solid var(--line);z-index:41;padding:calc(16px + env(safe-area-inset-top,0px)) 16px 24px;transform:translateX(-105%);transition:transform .22s ease;display:flex;flex-direction:column;gap:8px}
+.drawer{position:fixed;top:0;left:0;bottom:0;width:min(308px,88vw);background:var(--surface);border-right:1px solid var(--line);z-index:41;padding:calc(14px + env(safe-area-inset-top,0px)) 14px calc(18px + env(safe-area-inset-bottom,0px));transform:translateX(-105%);transition:transform .22s ease;display:flex;flex-direction:column;gap:0;box-shadow:12px 0 40px rgba(0,0,0,.18)}
 .drawer.open{transform:translateX(0)}
-.drawer .drawer-head{font-family:var(--font-display);font-weight:800;font-size:18px;margin:0 0 12px}
-.drawer .nav-link{display:block;width:100%;text-align:left;padding:12px 14px;font-size:15px;border-radius:8px}
-.drawer .nav-link::after{left:14px;right:auto;bottom:10px;top:10px;width:3px;height:auto;transform:scaleY(0);transform-origin:center top}
-.drawer .nav-link.is-active{background:var(--surface2)}
+.drawer-top{display:flex;align-items:flex-start;justify-content:space-between;gap:10px;padding:4px 2px 16px;border-bottom:1px solid var(--line);margin-bottom:14px}
+.drawer-user{display:flex;align-items:center;gap:12px;min-width:0;flex:1}
+.drawer-user .av{flex:none;width:44px;height:44px;border-radius:50%;background:var(--red);color:#fff;display:grid;place-items:center;font-size:16px;font-weight:700;overflow:hidden;position:relative}
+.drawer-user .av img{width:100%;height:100%;object-fit:cover;display:block}
+.drawer-user .av.has-photo{background:var(--surface2)}
+.drawer-user .meta{min-width:0;display:flex;flex-direction:column;gap:2px}
+.drawer-user .meta strong{font-family:var(--font-display);font-size:15px;font-weight:800;color:var(--ink);line-height:1.2;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.drawer-user .meta span{font-size:12px;color:var(--muted);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.drawer-close{flex:none;width:36px;height:36px;border:1px solid var(--line);border-radius:10px;background:var(--surface2);color:var(--muted);font-size:20px;line-height:1;display:grid;place-items:center}
+.drawer-nav{display:flex;flex-direction:column;gap:4px;flex:1}
+.drawer .nav-link{display:flex;align-items:center;gap:12px;width:100%;text-align:left;padding:13px 14px;font-size:15px;border-radius:12px;color:var(--ink)}
+.drawer .nav-link::after{left:0;right:auto;bottom:10px;top:10px;width:3px;height:auto;border-radius:0 3px 3px 0;transform:scaleY(0);transform-origin:center top}
+.drawer .nav-link .nav-ico{flex:none;width:22px;height:22px;display:grid;place-items:center;color:var(--muted)}
+.drawer .nav-link .nav-ico svg{width:20px;height:20px;display:block}
+.drawer .nav-link:hover{background:var(--surface2);color:var(--ink)}
+.drawer .nav-link.is-active{background:var(--red-soft);color:var(--red)}
+.drawer .nav-link.is-active .nav-ico{color:var(--red)}
 .drawer .nav-link.is-active::after{transform:scaleY(1)}
+.drawer .nav-link.danger{color:var(--bad)}
+.drawer .nav-link.danger .nav-ico{color:var(--bad)}
+.drawer-foot{margin-top:auto;padding-top:14px;border-top:1px solid var(--line);display:flex;flex-direction:column;gap:4px}
 @media (min-width:720px){
   .top-nav{display:flex;margin-right:auto}
   .btn-menu{display:none!important}
@@ -392,9 +408,33 @@ select:focus{border-color:var(--red);box-shadow:0 0 0 3px var(--red-soft)}
 </div></header>
 <div class="drawer-backdrop" id="drawerBackdrop" hidden></div>
 <aside class="drawer" id="drawer" aria-hidden="true" hidden>
-  <div class="drawer-head">Menu</div>
-  <button type="button" class="nav-link" data-nav="home" id="drawerHome">Início</button>
-  <button type="button" class="nav-link" data-nav="hist" id="drawerHist">Histórico</button>
+  <div class="drawer-top">
+    <div class="drawer-user">
+      <span class="av" id="drawerAv" aria-hidden="true">?</span>
+      <div class="meta">
+        <strong id="drawerNome">—</strong>
+        <span id="drawerEmail">—</span>
+      </div>
+    </div>
+    <button type="button" class="drawer-close" id="btnDrawerClose" aria-label="Fechar menu">×</button>
+  </div>
+  <nav class="drawer-nav" aria-label="Menu principal">
+    <button type="button" class="nav-link" data-nav="home" id="drawerHome">
+      <span class="nav-ico" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 10.5 12 3l9 7.5"/><path d="M5 9.5V21h14V9.5"/></svg></span>
+      Início
+    </button>
+    <button type="button" class="nav-link" data-nav="hist" id="drawerHist">
+      <span class="nav-ico" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 6h16M4 12h10M4 18h13"/></svg></span>
+      Histórico
+    </button>
+  </nav>
+  <div class="drawer-foot">
+    <button type="button" class="nav-link" id="drawerTema">Tema</button>
+    <button type="button" class="nav-link danger" id="drawerSair">
+      <span class="nav-ico" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 7V5a2 2 0 0 1 2-2h7v18h-7a2 2 0 0 1-2-2v-2"/><path d="M15 12H3m0 0 3-3m-3 3 3 3"/></svg></span>
+      Sair
+    </button>
+  </div>
 </aside>
 
 <main class="wrap is-auth" id="wrap">
@@ -1036,21 +1076,29 @@ function profAvatarUrl(){
   return meProf?.avatar_url || sessionUser?.user_metadata?.avatar_url || "";
 }
 
+function setAvatarEl(el, url, inicial){
+  if(!el) return;
+  if(url){
+    el.classList.add("has-photo");
+    el.innerHTML = `<img src="${url}" alt="">`;
+  } else {
+    el.classList.remove("has-photo");
+    el.textContent = inicial;
+  }
+}
+
 function setWhoami(nome){
   const label = (nome||"").trim();
   const first = label.split(/\s+/)[0] || "?";
   const inicial = first.charAt(0).toUpperCase();
   const url = (profAvatarUrl()||"").trim();
+  const email = (meProf?.email || sessionUser?.email || "").trim();
   $("btnUserMenu").title = label;
   $("userNm").textContent = first;
-  const av = $("userAv");
-  if(url){
-    av.classList.add("has-photo");
-    av.innerHTML = `<img src="${url}" alt="">`;
-  } else {
-    av.classList.remove("has-photo");
-    av.textContent = inicial;
-  }
+  setAvatarEl($("userAv"), url, inicial);
+  $("drawerNome").textContent = label || "—";
+  $("drawerEmail").textContent = email || "Professor avaliador";
+  setAvatarEl($("drawerAv"), url, inicial);
   $("btnFotoRemover").classList.toggle("hidden", !url);
 }
 
@@ -1061,9 +1109,11 @@ function setSession(user){
     setShellLogged(true);
   } else {
     meProf = null;
-    $("userAv").classList.remove("has-photo");
-    $("userAv").textContent = "?";
+    setAvatarEl($("userAv"), "", "?");
+    setAvatarEl($("drawerAv"), "", "?");
     $("userNm").textContent = "—";
+    $("drawerNome").textContent = "—";
+    $("drawerEmail").textContent = "—";
     $("btnUserMenu").title = "";
     $("btnFotoRemover").classList.add("hidden");
     setShellLogged(false);
@@ -1189,6 +1239,7 @@ $("btnMenu").onclick = ()=>{
   else openDrawer();
 };
 $("drawerBackdrop").onclick = ()=> closeDrawer();
+$("btnDrawerClose").onclick = ()=> closeDrawer();
 $("btnUserMenu").onclick = e=>{ e.stopPropagation(); toggleUserMenu(); };
 $("btnFoto").onclick = e=>{
   e.stopPropagation();
@@ -1265,7 +1316,8 @@ $("btnCadastrar").onclick = async ()=>{
   toast("Conta criada. Faça login.");
 };
 
-$("btnSair").onclick = async ()=>{
+async function doLogout(){
+  closeMenus();
   if(running) stopTimer();
   await sb.auth.signOut();
   sessionUser = null;
@@ -1273,7 +1325,9 @@ $("btnSair").onclick = async ()=>{
   setSession(null);
   setAuthMode(false);
   show("vAuth");
-};
+}
+$("btnSair").onclick = ()=> doLogout();
+$("drawerSair").onclick = ()=> doLogout();
 
 /* ---------- Tela inicial ---------- */
 function renderPool(){
@@ -1873,16 +1927,23 @@ function aplicaTema(){
   if(tema==="auto") r.removeAttribute("data-theme");
   else r.setAttribute("data-theme", tema==="claro" ? "light" : "dark");
   const efetivo = temaEfetivo();
-  const btn = $("btnTema");
-  btn.textContent = efetivo==="claro" ? "☀︎ Modo claro" : "☾ Modo escuro";
-  btn.title = efetivo==="claro" ? "Toque para escuro" : "Toque para claro";
+  const label = efetivo==="claro" ? "☀︎ Modo claro" : "☾ Modo escuro";
+  const tip = efetivo==="claro" ? "Toque para escuro" : "Toque para claro";
+  ["btnTema","drawerTema"].forEach(id=>{
+    const btn = $(id);
+    if(!btn) return;
+    btn.textContent = label;
+    btn.title = tip;
+  });
 }
-$("btnTema").onclick = ()=>{
+function toggleTema(){
   tema = temaEfetivo()==="claro" ? "escuro" : "claro";
   save("dc_tema", tema); aplicaTema();
   closeUserMenu();
   toast(tema==="claro" ? "Modo claro" : "Modo escuro");
-};
+}
+$("btnTema").onclick = ()=> toggleTema();
+$("drawerTema").onclick = ()=> toggleTema();
 aplicaTema();
 
 (async function boot(){
