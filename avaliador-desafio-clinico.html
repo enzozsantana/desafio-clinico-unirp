@@ -150,6 +150,9 @@ body.is-auth .wrap{
 .badge{display:inline-block;margin-left:6px;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.03em;color:var(--bad);background:var(--badbg);border-radius:999px;padding:2px 7px;vertical-align:middle}
 .filters{display:grid;gap:12px}
 .filters .row{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.periodo-seg{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:2px}
+.periodo-seg button{border:1.5px solid var(--line);background:var(--surface2);border-radius:10px;padding:12px 10px;font-weight:700;font-size:14px;color:var(--ink)}
+.periodo-seg button.on{background:var(--red-soft);border-color:var(--red);color:var(--red)}
 .toolbar{display:grid;gap:10px;margin:0 0 14px}
 .toolbar.toolbar-top{grid-template-columns:1fr 1fr}
 @media (max-width:420px){.toolbar.toolbar-top{grid-template-columns:1fr}}
@@ -485,6 +488,12 @@ select:focus{border-color:var(--red);box-shadow:0 0 0 3px var(--red-soft)}
       <div style="height:12px"></div>
       <label class="f" for="inRA">RA (opcional)</label>
       <input type="text" id="inRA" autocomplete="off" inputmode="numeric" placeholder="RA">
+      <div style="height:12px"></div>
+      <label class="f">Período</label>
+      <div class="periodo-seg" id="periodoSeg" role="group" aria-label="Período do aluno">
+        <button type="button" data-periodo="diurno">Diurno</button>
+        <button type="button" data-periodo="noturno">Noturno</button>
+      </div>
     </div>
 
     <div class="card">
@@ -541,6 +550,7 @@ select:focus{border-color:var(--red);box-shadow:0 0 0 3px var(--red-soft)}
         <div class="nota" id="rNota">0,0</div>
         <div class="de">de 10</div>
         <div class="who" id="rWho"></div>
+        <div class="st2" id="rPeriodo"></div>
         <div class="st2" id="rSt"></div>
         <div class="st2" id="rProf"></div>
         <div id="rFlag"></div>
@@ -559,6 +569,12 @@ select:focus{border-color:var(--red);box-shadow:0 0 0 3px var(--red-soft)}
         <div style="height:12px"></div>
         <label class="f" for="editRA">RA (opcional)</label>
         <input type="text" id="editRA" autocomplete="off" inputmode="numeric">
+        <div style="height:12px"></div>
+        <label class="f">Período</label>
+        <div class="periodo-seg" id="editPeriodoSeg" role="group" aria-label="Período do aluno">
+          <button type="button" data-periodo="diurno">Diurno</button>
+          <button type="button" data-periodo="noturno">Noturno</button>
+        </div>
       </div>
       <div class="card">
         <p class="sub" style="margin-bottom:10px">Critérios · nota <strong id="editNotaLive">0,0</strong></p>
@@ -604,6 +620,13 @@ select:focus{border-color:var(--red);box-shadow:0 0 0 3px var(--red-soft)}
           </select>
         </div>
       </div>
+      <div style="height:12px"></div>
+      <label class="f" for="inFiltroPeriodo">Período</label>
+      <select id="inFiltroPeriodo">
+        <option value="">Todos</option>
+        <option value="diurno">Diurno</option>
+        <option value="noturno">Noturno</option>
+      </select>
     </div>
     <div class="card hist" id="hList"></div>
     <nav class="pager" id="hPager" hidden aria-label="Paginação do histórico">
@@ -806,6 +829,20 @@ let meProf = null; // {id, nome_completo, email}
 let histFiltro = "";
 let histFiltroSt = "";
 let histFiltroCrit = "";
+let histFiltroPeriodo = "";
+let chosenPeriodo = "";
+function periodoLabel(p){
+  if(p==="diurno") return "Diurno";
+  if(p==="noturno") return "Noturno";
+  return "—";
+}
+function setPeriodoSeg(rootId, value){
+  const root = $(rootId);
+  if(!root) return;
+  root.querySelectorAll("button[data-periodo]").forEach(b=>{
+    b.classList.toggle("on", b.dataset.periodo === value);
+  });
+}
 const HIST_PER_PAGE = 8;
 let histPage = 1;
 let currentView = "vAuth";
@@ -951,7 +988,8 @@ function show(v){
 }
 
 function resetStartForm(){
-  $("inNome").value=""; $("inRA").value=""; chosen=null;
+  $("inNome").value=""; $("inRA").value=""; chosen=null; chosenPeriodo="";
+  setPeriodoSeg("periodoSeg", "");
   $("drumNum").textContent="?"; $("drumNm").textContent="Toque em sortear";
   renderStList(); checkStart();
 }
@@ -1254,9 +1292,16 @@ function pick(n){
   checkStart();
 }
 function checkStart(){
-  $("btnIniciar").disabled = !(chosen && $("inNome").value.trim() && sessionUser);
+  $("btnIniciar").disabled = !(chosen && chosenPeriodo && $("inNome").value.trim() && sessionUser);
 }
 $("inNome").addEventListener("input", checkStart);
+$("periodoSeg").querySelectorAll("button[data-periodo]").forEach(btn=>{
+  btn.onclick = ()=>{
+    chosenPeriodo = btn.dataset.periodo;
+    setPeriodoSeg("periodoSeg", chosenPeriodo);
+    checkStart();
+  };
+});
 
 $("btnSortear").onclick = ()=>{
   let pool = ST.map(s=>s.n).filter(n=>!used.includes(n));
@@ -1279,11 +1324,13 @@ $("btnSortear").onclick = ()=>{
 
 $("btnIniciar").onclick = ()=>{
   if(!sessionUser){ show("vAuth"); return; }
+  if(!chosenPeriodo){ toast("Selecione o período (diurno ou noturno)"); return; }
   cur = {
     profId: sessionUser.id,
     prof: profNomeLogado(),
     nome: $("inNome").value.trim(),
     ra: $("inRA").value.trim(),
+    periodo: chosenPeriodo,
     st: chosen,
     ans: {},
     crit: false,
@@ -1295,7 +1342,7 @@ $("btnIniciar").onclick = ()=>{
 /* ---------- Avaliação ---------- */
 function startEval(){
   const s = ST[cur.st-1];
-  $("evAluno").textContent = cur.nome + (cur.ra ? " · RA " + cur.ra : "") + " · Prof. " + cur.prof;
+  $("evAluno").textContent = cur.nome + (cur.ra ? " · RA " + cur.ra : "") + " · " + periodoLabel(cur.periodo) + " · Prof. " + cur.prof;
   $("evTitulo").textContent = `Estação ${s.n} · ${s.nome}`;
   $("evCaso").innerHTML = `<p>${s.caso}</p>`;
   $("evInter").innerHTML = `<p class="sub">Intercorrência</p><p>${s.inter}</p><p class="sub" style="color:var(--orange)">Resposta esperada</p><p>${s.gab}</p><p class="sub">Nota docente</p><p>${s.nota}</p>`;
@@ -1355,7 +1402,7 @@ $("btnFinalizar").onclick = async ()=>{
 async function finalize(porTempo){
   stopTimer();
   const s = ST[cur.st-1];
-  const rec = {id:null, data:new Date().toISOString(), profId:cur.profId, prof:cur.prof, nome:cur.nome, ra:cur.ra, st:s.n, stNome:s.nome,
+  const rec = {id:null, data:new Date().toISOString(), profId:cur.profId, prof:cur.prof, nome:cur.nome, ra:cur.ra, periodo:cur.periodo||"", st:s.n, stNome:s.nome,
     ans:{...cur.ans}, nota:calc(cur.ans), crit:cur.crit, obs:cur.obs.trim(), tempo:elapsed,
     dur:durMin, porTempo:!!porTempo, avaliados:Object.keys(cur.ans).length};
   hist.unshift(rec);
@@ -1366,6 +1413,7 @@ async function finalize(porTempo){
       professor_id: cur.profId,
       aluno_nome: cur.nome,
       aluno_ra: cur.ra || null,
+      periodo: cur.periodo || null,
       estacao: s.n,
       estacao_nome: s.nome,
       respostas: {...cur.ans},
@@ -1439,6 +1487,7 @@ function showResult(r, fromHist){
   $("rNota").textContent = fmt(r.nota);
   $("rNota").style.color = r.nota>=7 ? "var(--ok)" : r.nota>=5 ? "var(--mid)" : "var(--bad)";
   $("rWho").textContent = r.nome + (r.ra ? " · RA " + r.ra : "");
+  $("rPeriodo").textContent = "Período: " + periodoLabel(r.periodo);
   $("rProf").textContent = r.prof ? "Avaliador: " + r.prof : "";
   $("rSt").textContent = `Estação ${r.st} · ${r.stNome} · ${new Date(r.data).toLocaleString("pt-BR",{dateStyle:"short",timeStyle:"short"})}`;
   const n = r.avaliados ?? Object.keys(r.ans||{}).length;
@@ -1486,12 +1535,14 @@ function startEditRec(r, fromHist){
   editDraft = {
     nome: r.nome || "",
     ra: r.ra || "",
+    periodo: r.periodo || "",
     crit: !!r.crit,
     obs: r.obs || "",
     ans: {...(r.ans||{})}
   };
   $("editNome").value = editDraft.nome;
   $("editRA").value = editDraft.ra;
+  setPeriodoSeg("editPeriodoSeg", editDraft.periodo);
   $("editCritFlag").checked = editDraft.crit;
   $("editObs").value = editDraft.obs;
   $("rEditLead").textContent = `Estação ${r.st} · ${r.stNome}`;
@@ -1503,17 +1554,20 @@ async function saveEditRec(){
   if(!lastRec || !editDraft || !canManageRec(lastRec)) return;
   const nome = $("editNome").value.trim();
   if(!nome){ toast("Informe o nome do aluno"); return; }
+  if(editDraft.periodo!=="diurno" && editDraft.periodo!=="noturno"){ toast("Selecione o período"); return; }
   const ans = {...editDraft.ans};
   const nota = calc(ans);
   const crit = $("editCritFlag").checked;
   const obs = $("editObs").value.trim();
   const ra = $("editRA").value.trim();
+  const periodo = editDraft.periodo;
   const avaliados = Object.keys(ans).length;
   $("btnSalvarEdit").disabled = true;
   try{
     const { error } = await sb.from("avaliacoes").update({
       aluno_nome: nome,
       aluno_ra: ra || null,
+      periodo,
       respostas: ans,
       nota,
       erro_critico: crit,
@@ -1521,7 +1575,7 @@ async function saveEditRec(){
       criterios_avaliados: avaliados
     }).eq("id", lastRec.id);
     if(error) throw error;
-    Object.assign(lastRec, { nome, ra, ans, nota, crit, obs, avaliados });
+    Object.assign(lastRec, { nome, ra, periodo, ans, nota, crit, obs, avaliados });
     const i = hist.findIndex(h=>h.id===lastRec.id);
     if(i>=0) hist[i] = {...lastRec};
     toast("Avaliação atualizada");
@@ -1550,9 +1604,9 @@ async function deleteRec(r, after){
   }
 }
 function recText(r){
-  const lines = [`Desafio Clínico UNIRP`,`Avaliador: ${r.prof||"—"}`,`Aluno: ${r.nome}${r.ra?" (RA "+r.ra+")":""}`,`Estação ${r.st}: ${r.stNome}`,`Nota: ${fmt(r.nota)} / 10${r.crit?" — ERRO CRÍTICO":""}`,""];
+  const lines = [`Desafio Clínico UNIRP`,`Avaliador: ${r.prof||"—"}`,`Aluno: ${r.nome}${r.ra?" (RA "+r.ra+")":""}`,`Período: ${periodoLabel(r.periodo)}`,`Estação ${r.st}: ${r.stNome}`,`Nota: ${fmt(r.nota)} / 10${r.crit?" — ERRO CRÍTICO":""}`,""];
   BASE.forEach((b,i)=>lines.push(`${i+1}. ${b.t}: ${lbl(r.ans[b.k])}`));
-  if(r.porTempo) lines.splice(5,0,"Encerrada por tempo");
+  if(r.porTempo) lines.splice(6,0,"Encerrada por tempo");
   if(r.obs) lines.push("", "Observações: "+r.obs);
   return lines.join("\n");
 }
@@ -1579,6 +1633,13 @@ $("editNome").oninput = e=>{ if(editDraft) editDraft.nome = e.target.value; };
 $("editRA").oninput = e=>{ if(editDraft) editDraft.ra = e.target.value; };
 $("editObs").oninput = e=>{ if(editDraft) editDraft.obs = e.target.value; };
 $("editCritFlag").onchange = e=>{ if(editDraft) editDraft.crit = e.target.checked; };
+$("editPeriodoSeg").querySelectorAll("button[data-periodo]").forEach(btn=>{
+  btn.onclick = ()=>{
+    if(!editDraft) return;
+    editDraft.periodo = btn.dataset.periodo;
+    setPeriodoSeg("editPeriodoSeg", editDraft.periodo);
+  };
+});
 
 /* ---------- Histórico ---------- */
 function mapAvaliacao(row){
@@ -1589,6 +1650,7 @@ function mapAvaliacao(row){
     prof: row.professores?.nome_completo || (row.professor_id===sessionUser?.id ? profNomeLogado() : ""),
     nome: row.aluno_nome,
     ra: row.aluno_ra || "",
+    periodo: row.periodo || "",
     st: row.estacao,
     stNome: row.estacao_nome,
     ans: row.respostas || {},
@@ -1617,6 +1679,7 @@ function histFiltrado(){
     if(histFiltroSt && String(r.st)!==String(histFiltroSt)) return false;
     if(histFiltroCrit==="1" && !r.crit) return false;
     if(histFiltroCrit==="0" && r.crit) return false;
+    if(histFiltroPeriodo && r.periodo!==histFiltroPeriodo) return false;
     return true;
   }).sort((a,b)=> new Date(b.data) - new Date(a.data));
 }
@@ -1628,7 +1691,7 @@ function clampHistPage(total){
 }
 function renderHist(){
   const list = histFiltrado();
-  const filtered = !!(histFiltro.trim() || histFiltroSt || histFiltroCrit);
+  const filtered = !!(histFiltro.trim() || histFiltroSt || histFiltroCrit || histFiltroPeriodo);
   const pages = histPageCount(list.length || 1);
   clampHistPage(list.length);
   const start = (histPage - 1) * HIST_PER_PAGE;
@@ -1656,7 +1719,7 @@ function renderHist(){
           <button type="button" class="iconbtn danger" data-act="del" data-i="${idx}">Excluir</button>
         </div>`
       : `<div class="h-actions"><button type="button" class="iconbtn" data-act="open" data-i="${idx}">Ver</button></div>`;
-    return `<div class="h" data-i="${idx}"><div class="h-main"><div><div class="row1"><strong>${r.nome}</strong>${r.crit?`<span class="badge">Crítico</span>`:""}</div><span class="meta">RA ${r.ra||"—"}</span><span class="meta">Estação ${r.st} · ${new Date(r.data).toLocaleString("pt-BR",{dateStyle:"short",timeStyle:"short"})}</span></div><span class="g">${fmt(r.nota)}</span></div>${actions}</div>`;
+    return `<div class="h" data-i="${idx}"><div class="h-main"><div><div class="row1"><strong>${r.nome}</strong>${r.crit?`<span class="badge">Crítico</span>`:""}</div><span class="meta">RA ${r.ra||"—"} · ${periodoLabel(r.periodo)}</span><span class="meta">Estação ${r.st} · ${new Date(r.data).toLocaleString("pt-BR",{dateStyle:"short",timeStyle:"short"})}</span></div><span class="g">${fmt(r.nota)}</span></div>${actions}</div>`;
   }).join("");
   $("hList").querySelectorAll("[data-act]").forEach(b=>{
     b.onclick = ev=>{
@@ -1677,12 +1740,13 @@ function setHistFiltroAndRender(updater){
 $("inFiltro").addEventListener("input", e=> setHistFiltroAndRender(()=>{ histFiltro = e.target.value; }));
 $("inFiltroSt").addEventListener("change", e=> setHistFiltroAndRender(()=>{ histFiltroSt = e.target.value; }));
 $("inFiltroCrit").addEventListener("change", e=> setHistFiltroAndRender(()=>{ histFiltroCrit = e.target.value; }));
+$("inFiltroPeriodo").addEventListener("change", e=> setHistFiltroAndRender(()=>{ histFiltroPeriodo = e.target.value; }));
 $("btnHistPrev").onclick = ()=>{ if(histPage>1){ histPage--; renderHist(); window.scrollTo(0,0); } };
 $("btnHistNext").onclick = ()=>{ histPage++; renderHist(); window.scrollTo(0,0); };
 function tabela(){
-  const head = ["Data","Professor","Aluno","RA","Estação","Tempo (min)",...BASE.map((b,i)=>`${i+1}. ${b.t}`),"Critérios avaliados","Nota","Encerrada por tempo","Erro crítico","Observações"];
+  const head = ["Data","Professor","Aluno","RA","Período","Estação","Tempo (min)",...BASE.map((b,i)=>`${i+1}. ${b.t}`),"Critérios avaliados","Nota","Encerrada por tempo","Erro crítico","Observações"];
   const rows = histFiltrado().map(r=>[
-    new Date(r.data).toLocaleString("pt-BR",{dateStyle:"short",timeStyle:"short"}), r.prof||"", r.nome, r.ra||"", `E${r.st} - ${r.stNome}`, r.dur||15,
+    new Date(r.data).toLocaleString("pt-BR",{dateStyle:"short",timeStyle:"short"}), r.prof||"", r.nome, r.ra||"", periodoLabel(r.periodo), `E${r.st} - ${r.stNome}`, r.dur||15,
     ...BASE.map(b=>lbl(r.ans[b.k])), `${r.avaliados ?? Object.keys(r.ans).length} de 10`, fmt(r.nota),
     r.porTempo?"Sim":"Não", r.crit?"Sim":"Não", r.obs||""
   ]);
