@@ -5,7 +5,7 @@ import { faixas } from './score';
 import { LETTERS } from './utils';
 import { FOLHA, folhaCode, layoutFolha, objetivas } from './omr/core.js';
 
-const LOGO_URL = '/unirp-logo.png';
+const LOGO_URL = `${import.meta.env.BASE_URL}unirp-logo.png`;
 /** Largura/altura da logo no cabeçalho (mm), proporção ~147×40 */
 const LOGO_W = 36;
 const LOGO_H = 9.8;

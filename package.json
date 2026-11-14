@@ -6,6 +6,8 @@
   "scripts": {
     "dev": "vite",
     "build": "tsc -b && vite build",
+    "build:gh": "node scripts/build-gh.mjs",
+    "deploy:gh": "npm run build:gh && npx --yes gh-pages@6 -d dist -m \"Deploy GitHub Pages\"",
     "lint": "oxlint",
     "preview": "vite preview"
   },

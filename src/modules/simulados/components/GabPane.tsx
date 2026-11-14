@@ -346,11 +346,11 @@ export function GabPane({ sim }: { sim: Simulado }) {
             </div>
           </div>
           <div className="actions">
-            <button type="button" className="btn ghost" onClick={applyEdit}>
-              Aplicar ajustes
-            </button>
             <button type="button" className="btn danger" onClick={() => void delSim()}>
               Excluir simulado
+            </button>
+            <button type="button" className="btn ghost" onClick={applyEdit}>
+              Aplicar ajustes
             </button>
           </div>
         </div>
