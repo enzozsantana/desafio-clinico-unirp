@@ -1,6 +1,6 @@
 import { spawnSync } from 'node:child_process';
 
-process.env.VITE_BASE = '/desafio-clinico-unirp/';
+process.env.VITE_BASE = '/sistema-avaliacoes-unirp/';
 
 const tsc = spawnSync('npx', ['tsc', '-b'], { stdio: 'inherit', shell: true, env: process.env });
 if (tsc.status) process.exit(tsc.status ?? 1);

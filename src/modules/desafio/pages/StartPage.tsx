@@ -110,6 +110,7 @@ export function StartPage() {
       periodo,
       st: chosen,
       ans: {},
+      notaCaderno: '',
       crit: false,
       obs: '',
     };

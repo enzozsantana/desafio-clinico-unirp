@@ -1,8 +1,8 @@
 import type { ReactNode } from 'react';
-import { Navigate, Route, Routes } from 'react-router-dom';
+import { Navigate, createBrowserRouter } from 'react-router-dom';
 import { AuthProvider, useAuth } from './auth/AuthProvider';
 import { AppLayout } from './layout/AppLayout';
-import { DesafioRoutes } from './modules/desafio/DesafioRoutes';
+import { DesafioLayout, desafioChildRoutes } from './modules/desafio/DesafioRoutes';
 import { SimuladosRoutes } from './modules/simulados/SimuladosRoutes';
 import { HubPage } from './pages/Hub';
 import { LoginPage } from './pages/Login';
@@ -15,41 +15,56 @@ function RequireAuth({ children }: { children: ReactNode }) {
   return children;
 }
 
-export default function App() {
+function RootLayout() {
   return (
     <ThemeProvider>
       <AuthProvider>
-        <AppLayout>
-          <Routes>
-            <Route path="/login" element={<LoginPage />} />
-            <Route
-              path="/"
-              element={
-                <RequireAuth>
-                  <HubPage />
-                </RequireAuth>
-              }
-            />
-            <Route
-              path="/desafio/*"
-              element={
-                <RequireAuth>
-                  <DesafioRoutes />
-                </RequireAuth>
-              }
-            />
-            <Route
-              path="/simulados/*"
-              element={
-                <RequireAuth>
-                  <SimuladosRoutes />
-                </RequireAuth>
-              }
-            />
-            <Route path="*" element={<Navigate to="/" replace />} />
-          </Routes>
-        </AppLayout>
+        <AppLayout />
       </AuthProvider>
     </ThemeProvider>
   );
 }
+
+const basename = import.meta.env.BASE_URL.replace(/\/$/, '') || undefined;
+
+export const router = createBrowserRouter(
+  [
+    {
+      path: '/',
+      element: <RootLayout />,
+      children: [
+        { path: 'login', element: <LoginPage /> },
+        {
+          index: true,
+          element: (
+            <RequireAuth>
+              <HubPage />
+            </RequireAuth>
+          ),
+        },
+        {
+          path: 'desafio',
+          element: (
+            <RequireAuth>
+              <DesafioLayout />
+            </RequireAuth>
+          ),
+          children: [
+            ...desafioChildRoutes,
+            { path: '*', element: <Navigate to="/desafio" replace /> },
+          ],
+        },
+        {
+          path: 'simulados/*',
+          element: (
+            <RequireAuth>
+              <SimuladosRoutes />
+            </RequireAuth>
+          ),
+        },
+        { path: '*', element: <Navigate to="/" replace /> },
+      ],
+    },
+  ],
+  { basename },
+);

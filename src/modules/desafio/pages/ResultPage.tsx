@@ -4,7 +4,7 @@ import { useAuth } from '../../../auth/AuthProvider';
 import { fmt, periodoLabel } from '../../../lib/storage';
 import { sb } from '../../../lib/supabase';
 import { useDesafio } from '../DesafioContext';
-import { calc } from '../scoring';
+import { calc, calcFinal, isNotaCadernoValida, parseNotaCaderno } from '../scoring';
 import { BASE, lbl, type AnsVal } from '../stations';
 import {
   canManageRec,
@@ -111,6 +111,7 @@ export function ResultPage() {
         crit: !!rec.crit,
         obs: rec.obs,
         ans: { ...(rec.ans || {}) },
+        notaCaderno: rec.notaCaderno != null ? String(rec.notaCaderno) : '',
       });
       setEditMode(true);
     }
@@ -135,6 +136,7 @@ export function ResultPage() {
       crit: !!rec!.crit,
       obs: rec!.obs,
       ans: { ...(rec!.ans || {}) },
+      notaCaderno: rec!.notaCaderno != null ? String(rec!.notaCaderno) : '',
     });
     setEditMode(true);
   }
@@ -150,8 +152,14 @@ export function ResultPage() {
       toast('Selecione o período');
       return;
     }
+    const caderno = parseNotaCaderno(editDraft.notaCaderno);
+    if (!isNotaCadernoValida(caderno)) {
+      toast('Informe a nota do caderno (0 a 10)');
+      return;
+    }
     const ans = { ...editDraft.ans };
-    const nota = calc(ans);
+    const notaPratica = calc(ans);
+    const nota = calcFinal(notaPratica, caderno);
     const avaliados = Object.keys(ans).length;
     setBusy(true);
     try {
@@ -163,6 +171,7 @@ export function ResultPage() {
           periodo: editDraft.periodo,
           respostas: ans,
           nota,
+          nota_caderno: caderno,
           erro_critico: editDraft.crit,
           observacoes: editDraft.obs.trim() || null,
           criterios_avaliados: avaliados,
@@ -176,6 +185,8 @@ export function ResultPage() {
         periodo: editDraft.periodo,
         ans,
         nota,
+        notaPratica,
+        notaCaderno: caderno,
         crit: editDraft.crit,
         obs: editDraft.obs.trim(),
         avaliados,
@@ -219,7 +230,11 @@ export function ResultPage() {
     }
   }
 
-  const editNotaLive = editDraft ? fmt(calc(editDraft.ans)) : '0,0';
+  const editPratica = editDraft ? calc(editDraft.ans) : 0;
+  const editCaderno = editDraft ? parseNotaCaderno(editDraft.notaCaderno) : null;
+  const editNotaLive = isNotaCadernoValida(editCaderno)
+    ? fmt(calcFinal(editPratica, editCaderno))
+    : fmt(editPratica);
 
   return (
     <>
@@ -230,7 +245,11 @@ export function ResultPage() {
               <div className="nota" style={{ color: notaColor }}>
                 {fmt(rec.nota)}
               </div>
-              <div className="de">de 10</div>
+              <div className="de">nota final · de 10</div>
+              <div className="st2" style={{ marginTop: 8 }}>
+                Prática {fmt(rec.notaPratica)}
+                {rec.notaCaderno != null ? ` · Caderno ${fmt(rec.notaCaderno)}` : ''}
+              </div>
               <div className="who">
                 {rec.nome}
                 {rec.ra ? ` · RA ${rec.ra}` : ''}
@@ -322,7 +341,10 @@ export function ResultPage() {
             </div>
             <div className="card">
               <p className="sub" style={{ marginBottom: 10 }}>
-                Critérios · nota <strong>{editNotaLive}</strong>
+                Critérios · prática <strong>{fmt(editPratica)}</strong>
+                {isNotaCadernoValida(editCaderno)
+                  ? ` · final ${editNotaLive}`
+                  : null}
               </p>
               <div className="edit-crit">
                 {BASE.map((b, i) => {
@@ -369,6 +391,27 @@ export function ResultPage() {
                 Risco grave ao paciente (não altera a nota automaticamente).
               </div>
             </label>
+            <div className="card">
+              <label className="f" htmlFor="editCaderno">
+                Nota do caderno
+              </label>
+              <input
+                id="editCaderno"
+                type="number"
+                inputMode="decimal"
+                min={0}
+                max={10}
+                step={0.5}
+                placeholder="0 a 10"
+                value={editDraft?.notaCaderno ?? ''}
+                onChange={(e) =>
+                  setEditDraft((d) => (d ? { ...d, notaCaderno: e.target.value } : d))
+                }
+              />
+              <p className="legend" style={{ marginTop: 8 }}>
+                Nota final = (prática + caderno) ÷ 2
+              </p>
+            </div>
             <div className="card">
               <label className="f" htmlFor="editObs">
                 Observações

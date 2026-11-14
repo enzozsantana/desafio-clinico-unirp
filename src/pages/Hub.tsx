@@ -33,7 +33,7 @@ export function HubPage() {
     <section>
       <div className="page-head">
         <h1>Olá, {firstName(meProf?.nome_completo || 'professor')}</h1>
-        <p className="lead">Área do professor · plataforma de avaliações</p>
+        <p className="lead">Sistema de Avaliações UNIRP · área do professor</p>
       </div>
       <div className="stats" aria-live="polite">
         <div className="stat"><div className="v">{n}</div><div className="l">Avaliações</div></div>

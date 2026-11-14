@@ -122,7 +122,7 @@ export function HistPage() {
       return;
     }
     const hoje = new Date().toLocaleDateString('pt-BR').replace(/\//g, '-');
-    const filename = `Desafio_Clinico_notas_${hoje}.xlsx`;
+    const filename = `Sistema_Avaliacoes_UNIRP_notas_${hoje}.xlsx`;
     try {
       const blob = buildXlsxBlob();
       const url = URL.createObjectURL(blob);

@@ -1,6 +1,6 @@
-# Desafio Clínico UNIRP
+# Sistema de Avaliações UNIRP
 
-Avaliador web para professores do Desafio Clínico (Enfermagem / UNIRP), agora em **Vite + React + TypeScript**.
+Plataforma web para professores (Enfermagem / UNIRP), em **Vite + React + TypeScript**.
 
 ## Módulos
 
@@ -29,6 +29,14 @@ npm run preview
 ```
 
 A saída fica em `dist/`. Em hosts estáticos (Netlify etc.), use rewrite SPA para `index.html` (`public/_redirects` já inclui a regra Netlify).
+
+Publicação no GitHub Pages:
+
+```bash
+npm run deploy:gh
+```
+
+URL: https://enzozsantana.github.io/sistema-avaliacoes-unirp/
 
 ## Estrutura
 

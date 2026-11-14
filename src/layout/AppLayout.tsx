@@ -1,5 +1,5 @@
-import { useEffect, useRef, useState, type ReactNode } from 'react';
-import { useLocation, useNavigate } from 'react-router-dom';
+import { useEffect, useRef, useState } from 'react';
+import { Outlet, useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '../auth/AuthProvider';
 import { removeAvatar, uploadAvatar } from '../modules/desafio/avatar';
 import { useTheme } from '../theme/ThemeProvider';
@@ -19,7 +19,7 @@ function Avatar({ url, nome, className }: { url: string; nome: string; className
   );
 }
 
-export function AppLayout({ children }: { children: ReactNode }) {
+export function AppLayout() {
   const { user, meProf, signOut, refreshProf } = useAuth();
   const { toggle } = useTheme();
   const loc = useLocation();
@@ -102,7 +102,7 @@ export function AppLayout({ children }: { children: ReactNode }) {
     return (
       <>
         <main className="wrap" id="wrap">
-          {children}
+          <Outlet />
         </main>
         {toast ? <div className="toast show">{toast}</div> : null}
       </>
@@ -125,8 +125,8 @@ export function AppLayout({ children }: { children: ReactNode }) {
           <button type="button" className="brand" onClick={goHome} aria-label="Ir para o início">
             <img className="brand-logo" src={LOGO} alt="" width={147} height={40} />
             <div className="brand-text">
-              <strong>Desafio Clínico</strong>
-              <span>Enfermagem</span>
+              <strong>Sistema de Avaliações</strong>
+              <span>UNIRP</span>
             </div>
           </button>
           <nav className="top-nav" aria-label="Principal">
@@ -250,7 +250,7 @@ export function AppLayout({ children }: { children: ReactNode }) {
       ) : null}
 
       <main className="wrap" id="wrap">
-        {children}
+        <Outlet />
       </main>
       {toast ? <div className="toast show">{toast}</div> : null}
     </>

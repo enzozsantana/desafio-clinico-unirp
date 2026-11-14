@@ -1,6 +1,7 @@
 import type { AnsVal } from './stations';
 import { BASE, lbl, ST, type Station } from './stations';
 import { fmt, periodoLabel } from '../../lib/storage';
+import { calc } from './scoring';
 
 export type AvaliacaoRec = {
   id: string | null;
@@ -13,7 +14,12 @@ export type AvaliacaoRec = {
   st: number;
   stNome: string;
   ans: Record<string, AnsVal | string>;
+  /** Nota final = média (prática + caderno) / 2 */
   nota: number;
+  /** Soma dos critérios da estação (0–10) */
+  notaPratica: number;
+  /** Nota do caderno (0–10); null em avaliações antigas */
+  notaCaderno: number | null;
   crit: boolean;
   obs: string;
   tempo: number;
@@ -30,6 +36,8 @@ export type EvalSession = {
   periodo: 'diurno' | 'noturno';
   st: number;
   ans: Record<string, AnsVal>;
+  /** String do input; validada no finalize */
+  notaCaderno: string;
   crit: boolean;
   obs: string;
 };
@@ -46,6 +54,7 @@ export type AvaliacaoRow = {
   estacao_nome: string;
   respostas?: Record<string, string> | null;
   nota: number | string;
+  nota_caderno?: number | string | null;
   erro_critico?: boolean | null;
   observacoes?: string | null;
   tempo_segundos?: number | null;
@@ -82,6 +91,11 @@ export function mapAvaliacao(row: AvaliacaoRow, ctx?: MapAvaliacaoCtx): Avaliaca
     stNome: row.estacao_nome,
     ans: (row.respostas || {}) as Record<string, AnsVal | string>,
     nota: Number(row.nota),
+    notaPratica: calc((row.respostas || {}) as Record<string, string>),
+    notaCaderno:
+      row.nota_caderno != null && row.nota_caderno !== ''
+        ? Number(row.nota_caderno)
+        : null,
     crit: !!row.erro_critico,
     obs: row.observacoes || '',
     tempo: row.tempo_segundos || 0,
@@ -104,12 +118,14 @@ export function canManageRec(
 
 export function recText(r: AvaliacaoRec): string {
   const lines = [
-    'Desafio Clínico UNIRP',
+    'Sistema de Avaliações UNIRP',
     `Avaliador: ${r.prof || '—'}`,
     `Aluno: ${r.nome}${r.ra ? ` (RA ${r.ra})` : ''}`,
     `Período: ${periodoLabel(r.periodo)}`,
     `Estação ${r.st}: ${r.stNome}`,
-    `Nota: ${fmt(r.nota)} / 10${r.crit ? ' — ERRO CRÍTICO' : ''}`,
+    `Prática: ${fmt(r.notaPratica)} / 10`,
+    ...(r.notaCaderno != null ? [`Caderno: ${fmt(r.notaCaderno)} / 10`] : []),
+    `Nota final: ${fmt(r.nota)} / 10${r.crit ? ' — ERRO CRÍTICO' : ''}`,
     '',
   ];
   if (r.porTempo) lines.splice(6, 0, 'Encerrada por tempo');
@@ -158,7 +174,9 @@ export function tabelaRows(hist: AvaliacaoRec[], f: HistFilters): string[][] {
     'Tempo (min)',
     ...BASE.map((b, i) => `${i + 1}. ${b.t}`),
     'Critérios avaliados',
-    'Nota',
+    'Nota prática',
+    'Nota caderno',
+    'Nota final',
     'Encerrada por tempo',
     'Erro crítico',
     'Observações',
@@ -173,6 +191,8 @@ export function tabelaRows(hist: AvaliacaoRec[], f: HistFilters): string[][] {
     String(r.dur || 15),
     ...BASE.map((b) => lbl(r.ans[b.k] as AnsVal | undefined)),
     `${r.avaliados ?? Object.keys(r.ans).length} de 10`,
+    fmt(r.notaPratica),
+    r.notaCaderno != null ? fmt(r.notaCaderno) : '',
     fmt(r.nota),
     r.porTempo ? 'Sim' : 'Não',
     r.crit ? 'Sim' : 'Não',
@@ -188,6 +208,7 @@ export type EditDraft = {
   crit: boolean;
   obs: string;
   ans: Record<string, AnsVal | string>;
+  notaCaderno: string;
 };
 
 export function stationByNum(st: number): Station | undefined {

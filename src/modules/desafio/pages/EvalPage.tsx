@@ -10,7 +10,7 @@ import { useBlocker, useLocation, useNavigate } from 'react-router-dom';
 import { fmt, periodoLabel } from '../../../lib/storage';
 import { sb } from '../../../lib/supabase';
 import { useDesafio } from '../DesafioContext';
-import { calc } from '../scoring';
+import { calc, calcFinal, isNotaCadernoValida, parseNotaCaderno } from '../scoring';
 import { BASE, ST, type AnsVal } from '../stations';
 import { buildPhases, phaseAt } from '../timer';
 import type { AvaliacaoRec, EvalSession } from '../types';
@@ -43,7 +43,12 @@ export function EvalPage() {
   const { total, phases } = useMemo(() => buildPhases(durMin), [durMin]);
 
   const nAns = session ? Object.keys(session.ans).length : 0;
-  const notaLive = session ? calc(session.ans) : 0;
+  const notaPraticaLive = session ? calc(session.ans) : 0;
+  const cadernoLive = session ? parseNotaCaderno(session.notaCaderno) : null;
+  const notaLive =
+    session && isNotaCadernoValida(cadernoLive)
+      ? calcFinal(notaPraticaLive, cadernoLive)
+      : notaPraticaLive;
 
   const blocker = useBlocker(
     ({ currentLocation, nextLocation }) =>
@@ -137,9 +142,17 @@ export function EvalPage() {
 
   async function finalize(porTempo: boolean) {
     if (!session || !station) return;
+    const caderno = parseNotaCaderno(session.notaCaderno);
+    if (!isNotaCadernoValida(caderno)) {
+      toast('Informe a nota do caderno (0 a 10)');
+      finalizingRef.current = false;
+      return;
+    }
     finalizingRef.current = true;
     stopTimer();
     const obs = session.obs.trim();
+    const notaPratica = calc(session.ans);
+    const nota = calcFinal(notaPratica, caderno);
     const rec: AvaliacaoRec = {
       id: null,
       data: new Date().toISOString(),
@@ -151,7 +164,9 @@ export function EvalPage() {
       st: station.n,
       stNome: station.nome,
       ans: { ...session.ans },
-      nota: calc(session.ans),
+      nota,
+      notaPratica,
+      notaCaderno: caderno,
       crit: session.crit,
       obs,
       tempo: elapsed,
@@ -177,6 +192,7 @@ export function EvalPage() {
         estacao_nome: station.nome,
         respostas: { ...session.ans },
         nota: rec.nota,
+        nota_caderno: caderno,
         erro_critico: !!session.crit,
         observacoes: obs || null,
         tempo_segundos: elapsed,
@@ -212,6 +228,11 @@ export function EvalPage() {
 
   async function onFinalizar() {
     if (!session) return;
+    if (!isNotaCadernoValida(parseNotaCaderno(session.notaCaderno))) {
+      toast('Informe a nota do caderno (0 a 10)');
+      document.getElementById('inCaderno')?.focus();
+      return;
+    }
     const n = Object.keys(session.ans).length;
     if (
       n < 10 &&
@@ -391,6 +412,26 @@ export function EvalPage() {
           </div>
         </label>
         <div className="card">
+          <label className="f" htmlFor="inCaderno">
+            Nota do caderno
+          </label>
+          <input
+            id="inCaderno"
+            type="number"
+            inputMode="decimal"
+            min={0}
+            max={10}
+            step={0.5}
+            placeholder="0 a 10"
+            value={session.notaCaderno}
+            onChange={(e) => setSession((s) => (s ? { ...s, notaCaderno: e.target.value } : s))}
+          />
+          <p className="legend" style={{ marginTop: 8 }}>
+            Nota final = (prática {fmt(notaPraticaLive)} + caderno) ÷ 2
+            {isNotaCadernoValida(cadernoLive) ? ` → ${fmt(notaLive)}` : ''}
+          </p>
+        </div>
+        <div className="card">
           <label className="f" htmlFor="inObs">
             Observações
           </label>
@@ -407,7 +448,11 @@ export function EvalPage() {
         <div className="bar-in">
           <div className="score">
             <div className="v">{fmt(notaLive)}</div>
-            <div className="l">{nAns} de 10</div>
+            <div className="l">
+              {isNotaCadernoValida(cadernoLive)
+                ? `Final · prática ${fmt(notaPraticaLive)}`
+                : `${nAns} de 10`}
+            </div>
           </div>
           <div className="prog">
             <i style={{ width: `${nAns * 10}%` } as CSSProperties} />
