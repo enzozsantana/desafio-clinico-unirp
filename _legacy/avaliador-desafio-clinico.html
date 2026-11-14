@@ -503,10 +503,11 @@ select:focus{border-color:var(--red);box-shadow:0 0 0 3px var(--red-soft)}
         <p>OSCE de enfermagem com 7 estações, sorteio e checklist padronizado.</p>
         <button class="btn teal" id="btnWelcomeNova" type="button">Nova avaliação</button>
       </article>
-      <article class="mod soon" aria-disabled="true">
-        <span class="tag">Em breve</span>
-        <h3>Novos módulos</h3>
-        <p>Outras avaliações clínicas poderão ser adicionadas aqui.</p>
+      <article class="mod active">
+        <span class="tag">Ativo</span>
+        <h3>Correção de Simulados</h3>
+        <p>Provas objetivas com gabarito, leitura óptica da folha padronizada e resultados da turma.</p>
+        <button class="btn teal" id="btnWelcomeSimulados" type="button">Abrir módulo</button>
       </article>
     </div>
     <div class="sec-head">
@@ -1226,6 +1227,7 @@ function startNovaAvaliacao(){
 }
 
 $("btnWelcomeNova").onclick = ()=> startNovaAvaliacao();
+$("btnWelcomeSimulados").onclick = ()=>{ location.href = "simulados.html"; };
 $("btnWelcomeHist").onclick = ()=> openHistorico();
 $("btnVoltarWelcome").onclick = ()=> show("vWelcome");
 $("btnVoltarHistHome").onclick = ()=> goHome();

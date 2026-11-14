@@ -1,0 +1,930 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Correção de simulados</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700;12..96,800&family=Atkinson+Hyperlegible:wght@400;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --paper:#F7F8FB; --sheet:#FFFFFF; --ink:#1F3FA6; --ink-soft:#E6EBFA;
+  --red:#C9372C; --red-soft:#FBE8E6; --green:#1C7F47; --green-soft:#E3F3EA;
+  --text:#22252D; --muted:#646B7A; --line:#DCE0E8; --amber:#A86A00; --amber-soft:#FCF1DC;
+  color-scheme: light;
+  box-sizing:border-box;
+  padding-top:env(safe-area-inset-top,0px); padding-bottom:env(safe-area-inset-bottom,0px);
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --paper:#14161C; --sheet:#1C1F27; --ink:#8EA6FF; --ink-soft:#252D4A;
+    --red:#FF7A6E; --red-soft:#3A2224; --green:#5FD08F; --green-soft:#1C3227;
+    --text:#E9EBF1; --muted:#9AA1B2; --line:#30343F; --amber:#F2B54A; --amber-soft:#3A2F1A;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"]{
+  --paper:#14161C; --sheet:#1C1F27; --ink:#8EA6FF; --ink-soft:#252D4A;
+  --red:#FF7A6E; --red-soft:#3A2224; --green:#5FD08F; --green-soft:#1C3227;
+  --text:#E9EBF1; --muted:#9AA1B2; --line:#30343F; --amber:#F2B54A; --amber-soft:#3A2F1A;
+  color-scheme: dark;
+}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+*,*::before,*::after{box-sizing:border-box}
+body{margin:0;background:var(--paper);color:var(--text);font-family:"Atkinson Hyperlegible",system-ui,-apple-system,"Segoe UI",sans-serif;font-size:16px;line-height:1.5}
+h1,h2,h3{font-family:"Bricolage Grotesque","Atkinson Hyperlegible",system-ui,sans-serif;margin:0;line-height:1.15}
+button,input,select,textarea{font:inherit;color:inherit}
+button{cursor:pointer}
+:focus-visible{outline:3px solid var(--ink);outline-offset:2px}
+.wrap{max-width:760px;margin:0 auto;padding:20px 16px 64px}
+.top{display:flex;align-items:baseline;justify-content:space-between;gap:12px;margin-bottom:18px}
+.brand{font-family:"Bricolage Grotesque",system-ui,sans-serif;font-weight:800;font-size:1.55rem;letter-spacing:-.02em}
+.brand .dot{display:inline-block;width:.62em;height:.62em;border-radius:50%;background:var(--ink);margin-right:.35em;vertical-align:.02em}
+.save{font-size:.85rem;color:var(--muted)}
+.card{background:var(--sheet);border:1px solid var(--line);border-radius:14px;padding:16px}
+.stack>*+*{margin-top:12px}
+.muted{color:var(--muted)}
+.small{font-size:.88rem}
+label.f{display:block;font-size:.88rem;color:var(--muted);margin-bottom:4px}
+input[type=text],input[type=number],select,textarea{width:100%;background:var(--paper);border:1px solid var(--line);border-radius:10px;padding:10px 12px;min-height:44px}
+textarea{resize:vertical;font-family:ui-monospace,Menlo,Consolas,monospace;letter-spacing:.12em;text-transform:uppercase}
+.row{display:flex;gap:10px;flex-wrap:wrap}
+.row>*{flex:1 1 140px}
+.btn{border:0;border-radius:999px;padding:10px 18px;min-height:44px;background:var(--ink);color:var(--sheet);font-weight:700}
+.btn.ghost{background:transparent;color:var(--ink);border:1.5px solid var(--ink)}
+.btn.danger{background:transparent;color:var(--red);border:1.5px solid var(--red)}
+.btn.plain{background:transparent;color:var(--muted);padding:10px 8px}
+.btn:disabled{opacity:.45;cursor:not-allowed}
+.simlist{display:grid;gap:10px}
+.simitem{display:flex;justify-content:space-between;align-items:center;gap:12px;width:100%;text-align:left;background:var(--sheet);border:1px solid var(--line);border-radius:14px;padding:14px 16px}
+.simitem strong{display:block;font-size:1.05rem}
+.back{background:none;border:0;color:var(--ink);font-weight:700;padding:8px 0;min-height:44px}
+.simtitle{font-size:1.5rem;font-weight:800;letter-spacing:-.015em;margin:2px 0 14px}
+.tabs{display:flex;gap:4px;background:var(--sheet);border:1px solid var(--line);border-radius:999px;padding:4px;margin-bottom:16px;position:sticky;top:env(safe-area-inset-top,0px);z-index:5}
+.tabs button{flex:1;border:0;background:transparent;border-radius:999px;padding:9px 6px;min-height:42px;font-weight:700;color:var(--muted)}
+.tabs button[aria-selected="true"]{background:var(--ink);color:var(--sheet)}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:10;background:var(--paper)}
+
+/* folha de respostas */
+.sheet{background:var(--sheet);border:1px solid var(--line);border-radius:14px;padding:6px 10px}
+.q{display:grid;grid-template-columns:2.4em 1fr auto;align-items:center;gap:8px;padding:6px 4px;border-bottom:1px dashed var(--line)}
+.q:last-child{border-bottom:0}
+.qn{font-family:"Bricolage Grotesque",system-ui,sans-serif;font-weight:700;color:var(--muted);text-align:right;font-variant-numeric:tabular-nums}
+.bubbles{display:flex;gap:6px;flex-wrap:nowrap}
+.bub{width:38px;height:38px;border-radius:50%;border:1.5px solid var(--line);background:var(--sheet);font-weight:700;font-size:.9rem;color:var(--muted);display:grid;place-items:center;padding:0;flex:0 0 auto;transition:transform .08s}
+.bub:active{transform:scale(.92)}
+.bub.on{background:var(--ink);border-color:var(--ink);color:var(--sheet)}
+.bub.key{box-shadow:0 0 0 3px var(--green) inset}
+.q.ok .bub.on{background:var(--green);border-color:var(--green)}
+.q.bad .bub.on{background:var(--red);border-color:var(--red)}
+.mark{font-size:.8rem;font-weight:700;min-width:4.6em;text-align:right;white-space:nowrap}
+.q.ok .mark{color:var(--green)}
+.q.bad .mark{color:var(--red)}
+.q.blank .mark{color:var(--amber)}
+.q.null{opacity:.6}
+.toggle{border:1px solid var(--line);background:transparent;border-radius:999px;font-size:.78rem;padding:4px 10px;min-height:32px;color:var(--muted)}
+.toggle.on{background:var(--amber-soft);border-color:var(--amber);color:var(--amber);font-weight:700}
+
+.score{position:sticky;top:calc(env(safe-area-inset-top,0px) + 58px);z-index:4;display:flex;align-items:center;justify-content:space-between;gap:12px;background:var(--sheet);border:1px solid var(--line);border-radius:14px;padding:10px 14px;margin:12px 0}
+.grade{font-family:"Bricolage Grotesque",system-ui,sans-serif;font-weight:800;font-size:2rem;line-height:1;color:var(--red);font-variant-numeric:tabular-nums}
+.grade small{font-size:.9rem;color:var(--muted);font-weight:500}
+.tally{font-size:.88rem;color:var(--muted);text-align:right}
+.tally b{color:var(--text)}
+
+.alunos{display:grid;gap:8px}
+.aluno{display:flex;justify-content:space-between;align-items:center;width:100%;background:var(--sheet);border:1px solid var(--line);border-radius:12px;padding:12px 14px;text-align:left;min-height:52px}
+.pill{font-family:"Bricolage Grotesque",system-ui,sans-serif;font-weight:800;font-variant-numeric:tabular-nums;color:var(--red);font-size:1.15rem}
+
+.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
+.stat{background:var(--sheet);border:1px solid var(--line);border-radius:12px;padding:10px 12px}
+.stat b{display:block;font-family:"Bricolage Grotesque",system-ui,sans-serif;font-size:1.4rem;font-variant-numeric:tabular-nums}
+.stat span{font-size:.8rem;color:var(--muted)}
+@media (max-width:520px){.stats{grid-template-columns:repeat(2,1fr)}}
+.rank{width:100%;border-collapse:collapse;font-variant-numeric:tabular-nums}
+.rank td{padding:9px 6px;border-bottom:1px solid var(--line)}
+.rank td:first-child{color:var(--muted);width:2.2em}
+.rank td.r{text-align:right;white-space:nowrap}
+.qa{display:grid;grid-template-columns:2.6em 1fr 3.6em;gap:8px;align-items:center;width:100%;border:0;background:transparent;padding:7px 2px;text-align:left;border-bottom:1px dashed var(--line)}
+.bar{height:12px;border-radius:6px;background:var(--line);overflow:hidden}
+.bar i{display:block;height:100%;background:var(--green)}
+.qa.low .bar i{background:var(--red)}
+.qa.mid .bar i{background:var(--amber)}
+.dist{grid-column:1/-1;display:flex;gap:6px;flex-wrap:wrap;padding:4px 0 6px 3.2em}
+.dist span{font-size:.82rem;border:1px solid var(--line);border-radius:999px;padding:2px 10px}
+.dist span.k{border-color:var(--green);color:var(--green);font-weight:700}
+.empty{text-align:center;padding:28px 16px}
+.warn{background:var(--amber-soft);color:var(--amber);border-radius:10px;padding:10px 12px;font-size:.92rem}
+.actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:14px}
+.hint{font-size:.85rem;color:var(--muted)}
+.q.doubt{background:var(--amber-soft);border-radius:8px}
+.q.doubt .mark{color:var(--amber)}
+.tools{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:14px}
+.tools .btn{flex:1 1 200px}
+.amber{color:var(--amber);font-weight:700}
+#job{position:fixed;left:12px;right:12px;bottom:calc(12px + env(safe-area-inset-bottom,0px));z-index:20;max-width:560px;margin:0 auto;background:var(--text);color:var(--paper);border-radius:14px;padding:12px 14px;display:none;align-items:center;gap:12px;box-shadow:0 6px 24px rgba(0,0,0,.25)}
+#job.show{display:flex}
+#job.err{background:var(--red);color:#fff}
+#job span{flex:1}
+#job button{background:transparent;border:1.5px solid currentColor;color:inherit;border-radius:999px;padding:6px 14px;min-height:38px;font-weight:700}
+.spin{width:18px;height:18px;border-radius:50%;border:2.5px solid currentColor;border-right-color:transparent;animation:sp .8s linear infinite;flex:0 0 auto}
+@keyframes sp{to{transform:rotate(360deg)}}
+section h2{margin:0}
+.q.disc{grid-template-columns:2.4em 1fr auto}
+.q.disc.blank .mark{color:var(--amber)}
+.dinput{display:flex;align-items:center;gap:8px}
+input.pts,.lt input{width:4.6em;min-height:40px;text-align:center;padding:6px 8px;background:var(--paper);border:1px solid var(--line);border-radius:10px;font-variant-numeric:tabular-nums}
+input.over{border-color:var(--red);color:var(--red)}
+.esp{margin-top:4px;font-size:.85rem}
+.esp summary{cursor:pointer;color:var(--ink);font-weight:700}
+.esp p{margin:4px 0 0;color:var(--muted)}
+.pgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(78px,1fr));gap:8px;margin-top:10px}
+.pcell{display:flex;flex-direction:column;gap:2px;font-size:.8rem;color:var(--muted);font-weight:700}
+.pcell input{min-height:38px;padding:6px 8px;text-align:center}
+.pcell.d input{border-color:var(--amber)}
+.pcell b{color:var(--amber)}
+.lt{border-collapse:collapse;width:100%;font-variant-numeric:tabular-nums}
+.lt input{width:3.6em;padding:6px 4px}
+.lt th,.lt td{padding:8px 4px;border-bottom:1px solid var(--line);text-align:center;font-size:.9rem}
+.lt th{font-weight:700;white-space:nowrap}
+.lt .ln{text-align:left;position:sticky;left:0;background:var(--sheet);min-width:8.5em;max-width:12em;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;z-index:1}
+img.namecrop{display:block;width:100%;border:1px solid var(--line);border-radius:8px;background:#fff;margin-top:2px}
+img.scan{display:block;width:100%;border-radius:8px;margin-top:8px;border:1px solid var(--line)}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+@media (max-width:400px){.bub{width:34px;height:34px}.bubbles{gap:4px}.mark{min-width:3.6em}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="top">
+    <div class="brand"><span class="dot"></span>Correção de simulados</div>
+    <div class="save" id="save" aria-live="polite"></div>
+  </div>
+  <main id="app"><p class="muted">Carregando seus simulados…</p></main>
+</div>
+<div id="job" role="status" aria-live="polite"><i class="spin" id="jobSpin"></i><span id="jobTxt"></span><button id="jobBtn">Parar</button></div>
+<script>
+(function(){
+const LETTERS='ABCDE';
+const app=document.getElementById('app');
+const saveEl=document.getElementById('save');
+let store=null, downloads=null, sample=null, imgLimits=null;
+const S={sims:[],cur:null,tab:'gabarito',aluno:null,openQ:null,prev:{}};
+
+function esc(s){return String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
+function uid(p){return p+Date.now().toString(36)+Math.random().toString(36).slice(2,6)}
+function fmt(n){return (Math.round(n*10)/10).toLocaleString('pt-BR',{minimumFractionDigits:1,maximumFractionDigits:1})}
+function cur(){return S.sims.find(s=>s.id===S.cur)}
+function pad(str,n){str=(str||'').slice(0,n);return str+'.'.repeat(Math.max(0,n-str.length))}
+
+/* ---------- armazenamento ---------- */
+const LS='simulados-v1';
+const localStore={kind:'local',
+  async list(){try{return JSON.parse(localStorage.getItem(LS)||'[]')}catch(e){return []}},
+  async save(){try{localStorage.setItem(LS,JSON.stringify(S.sims))}catch(e){}},
+  async remove(){try{localStorage.setItem(LS,JSON.stringify(S.sims))}catch(e){}}
+};
+async function initStore(){
+  try{
+    if(window.claude&&window.claude.use){
+      const [db,user]=await Promise.all([window.claude.use('db'),window.claude.use('user')]);
+      if(db&&user){
+        const id=await user.id();
+        if(id){
+          const col=db.collection('data/users/'+id);
+          return {kind:'db',
+            async list(){const s=await col.get();return s.docs.filter(d=>d.exists&&d.id.startsWith('s')).map(d=>Object.assign({},JSON.parse(JSON.stringify(d.data())),{id:d.id}))},
+            async save(sim){const body=JSON.parse(JSON.stringify(sim));delete body.id;await col.doc(sim.id).set(body)},
+            async remove(id){await col.doc(id).delete()}
+          };
+        }
+      }
+    }
+  }catch(e){}
+  return localStore;
+}
+const timers={},writing={},again={};
+function persist(sim){
+  saveEl.textContent='Salvando…';
+  clearTimeout(timers[sim.id]);
+  timers[sim.id]=setTimeout(()=>flush(sim.id),600);
+}
+async function flush(id){
+  if(writing[id]){again[id]=true;return}
+  writing[id]=true;
+  const sim=S.sims.find(s=>s.id===id);
+  try{ if(sim) await store.save(sim); saveEl.textContent='Salvo'; }
+  catch(e){ saveEl.textContent=e&&e.code==='quota_exceeded'?'Espaço cheio: exclua um simulado antigo':'Não salvou. Verifique a conexão.'; }
+  writing[id]=false;
+  if(again[id]){again[id]=false;flush(id)}
+}
+
+/* ---------- cálculo ---------- */
+function peso(sim,i){const p=sim.peso&&sim.peso[i];return (p===undefined||p===null||p==='')?1:Math.max(0,+p||0)}
+function isDisc(sim,i){return !!(sim.disc&&sim.disc.includes(i))}
+function temPts(pts,i){return !!pts&&pts[i]!==undefined&&pts[i]!==null&&pts[i]!==''}
+/* pontos: objetiva certa ou anulada vale o peso; dissertativa vale o que o professor lançou (até o peso).
+   nota = pontos obtidos ÷ total de pontos × nota máxima */
+function score(sim,resp,pts){
+  let ac=0,val=0,pt=0,tot=0,pend=0;
+  for(let i=0;i<sim.nq;i++){const w=peso(sim,i);
+    if(isDisc(sim,i)){tot+=w;if(temPts(pts,i))pt+=Math.min(w,Math.max(0,+pts[i]||0));else pend++;continue}
+    if(sim.anul.includes(i)){ac++;val++;pt+=w;tot+=w;continue}
+    const g=sim.gab[i];if(!g||g==='.')continue;
+    val++;tot+=w;if(resp[i]===g){ac++;pt+=w}
+  }
+  return {ac,val,pt,tot,pend,nota:tot?pt/tot*sim.max:0};
+}
+function gabFaltando(sim){let n=0;for(let i=0;i<sim.nq;i++){if(!isDisc(sim,i)&&!sim.anul.includes(i)&&(!sim.gab[i]||sim.gab[i]==='.'))n++}return n}
+function fmtN(n){return (Math.round(n*100)/100).toLocaleString('pt-BR',{maximumFractionDigits:2})}
+function numBR(v){const n=parseFloat(String(v).replace(',','.'));return isFinite(n)?n:null}
+/* "1-16, 18, 20" → índices (base 0) */
+function parseFaixas(txt,nq){const out=new Set();for(const part of String(txt).split(/[,;\s]+/)){if(!part)continue;const m=part.match(/^(\d+)(?:[-–a](\d+))?$/i);if(!m)return null;
+  let a=+m[1],b=m[2]?+m[2]:a;if(a>b)[a,b]=[b,a];for(let i=a;i<=b;i++)if(i>=1&&i<=nq)out.add(i-1)}return [...out].sort((x,y)=>x-y)}
+function faixas(idx){const s=idx.slice().sort((a,b)=>a-b),out=[];for(let k=0;k<s.length;k++){let j=k;while(j+1<s.length&&s[j+1]===s[j]+1)j++;out.push(j>k?`${s[k]+1} a ${s[j]+1}`:`${s[k]+1}`);k=j}return out.join(', ')}
+function resumoEstrutura(sim){const nd=(sim.disc||[]).length,no=sim.nq-nd;let tot=0;for(let i=0;i<sim.nq;i++)tot+=peso(sim,i);
+  const partes=[`${no} ${no===1?'objetiva':'objetivas'}`];if(nd)partes.push(`${nd} ${nd===1?'dissertativa':'dissertativas'} (${faixas(sim.disc)})`);
+  return `${partes.join(' e ')}. Total: ${fmtN(tot)} ${tot===1?'ponto':'pontos'}${Math.abs(tot-sim.max)<1e-9?', que já é a nota máxima.':`, convertidos para nota de 0 a ${fmt(sim.max)}.`}`}
+
+/* ---------- leitura automática (PDF e fotos) ---------- */
+const jobEl=document.getElementById('job'),jobTxt=document.getElementById('jobTxt'),jobBtn=document.getElementById('jobBtn'),jobSpin=document.getElementById('jobSpin');
+let jobCtl=null,jobTimer=null;
+function startJob(msg){clearTimeout(jobTimer);jobCtl=new AbortController();S.busy=true;jobEl.className='show';jobSpin.style.display='';jobTxt.textContent=msg;jobBtn.textContent='Parar';jobBtn.onclick=()=>jobCtl&&jobCtl.abort();return jobCtl}
+function jobMsg(m){jobTxt.textContent=m}
+function endJob(msg,err){S.busy=false;jobCtl=null;jobSpin.style.display='none';jobEl.className='show'+(err?' err':'');jobTxt.textContent=msg;jobBtn.textContent='Fechar';jobBtn.onclick=()=>{jobEl.className=''};clearTimeout(jobTimer);jobTimer=setTimeout(()=>{jobEl.className=''},err?12000:8000)}
+function errMsg(e){const c=e&&e.code;return({not_granted:'Você não autorizou o uso do Claude nesta página.',rate_limited:'Muitas leituras seguidas. Espere um minuto e tente de novo.',image_rejected:'Essa imagem não pôde ser lida. Tente outra foto.',invalid_json:'A leitura voltou incompleta. Tente de novo.',cancelled:'Leitura interrompida.',images_unavailable:'Leitura de fotos indisponível aqui.',prompt_too_large:'O PDF é grande demais para ler de uma vez.',refused:'Não foi possível ler esse conteúdo.',session_expired:'Sua sessão expirou. Recarregue a página.'})[c]||'Não foi possível concluir a leitura agora.'}
+function pickFiles(accept,multiple){return new Promise(res=>{const i=document.createElement('input');i.type='file';i.accept=accept;if(multiple)i.multiple=true;i.style.display='none';document.body.appendChild(i);i.onchange=()=>{res(Array.from(i.files||[]));i.remove()};i.click()})}
+function loadScript(src){return new Promise((res,rej)=>{const s=document.createElement('script');s.src=src;s.onload=res;s.onerror=()=>rej(new Error('load'));document.head.appendChild(s)})}
+let pdfReady=null;
+function loadPdfjs(){
+  if(!pdfReady){const base='https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/';
+    pdfReady=loadScript(base+'pdf.worker.min.js').then(()=>loadScript(base+'pdf.min.js')).then(()=>{const lib=window.pdfjsLib;lib.GlobalWorkerOptions.workerSrc=base+'pdf.worker.min.js';return lib});
+    pdfReady.catch(()=>{pdfReady=null})}
+  return pdfReady;
+}
+function toBlob(c){return new Promise(r=>c.toBlob(r,'image/jpeg',0.88))}
+async function prepImage(file){
+  try{const bmp=await createImageBitmap(file,{imageOrientation:'from-image'});const s=Math.min(1,2200/Math.max(bmp.width,bmp.height));
+    const c=document.createElement('canvas');c.width=Math.round(bmp.width*s);c.height=Math.round(bmp.height*s);c.getContext('2d').drawImage(bmp,0,0,c.width,c.height);
+    return (await toBlob(c))||file}catch(e){return file}
+}
+async function pdfPages(doc,pages){
+  const out=[];for(const p of pages){const page=await doc.getPage(p);const v0=page.getViewport({scale:1});const vp=page.getViewport({scale:Math.min(2.4,1600/v0.width)});
+    const c=document.createElement('canvas');c.width=vp.width;c.height=vp.height;const ctx=c.getContext('2d');ctx.fillStyle='#fff';ctx.fillRect(0,0,c.width,c.height);
+    await page.render({canvasContext:ctx,viewport:vp}).promise;out.push(await toBlob(c))}
+  return out;
+}
+const FORMATO_GAB=`Responda só com JSON neste formato:
+{"encontrado": true, "total_questoes": 20, "alternativas": 5,
+ "gabarito": {"1": "A", "2": "C"}, "anuladas": [7],
+ "dissertativas": [17, 18, 19, 20],
+ "pesos": {"1": 0.5, "17": 1.5},
+ "respostas_esperadas": {"17": "resumo curto do que o documento indica como resposta esperada"}}
+Regras:
+- "total_questoes": número total de questões da prova, contando objetivas e dissertativas.
+- "dissertativas": números das questões abertas/discursivas (sem alternativas, para o aluno escrever).
+- "gabarito": só questões objetivas. NÃO resolva as questões por conta própria; use apenas o que o documento indica como resposta correta (tabela de gabarito, "Resposta: C", alternativa destacada como correta etc.). Se o documento não traz gabarito, use {}.
+- "pesos": valor em pontos de cada questão, só se o documento disser (ex.: "(1,5 ponto)", "cada questão objetiva vale 0,5"). Se disser uma regra geral, aplique a todas as questões a que ela se refere. Se não disser nada, use {}.
+- "respostas_esperadas": só se o documento trouxer resposta esperada, espelho ou critério de correção de dissertativa; resuma em até 300 caracteres. Senão, {}.
+- "alternativas" é 5 se as questões vão de A a E e 4 se vão de A a D.
+- Use "encontrado": false se o arquivo não for uma prova.`;
+async function lerPDF(sim,file){
+  if(S.busy)return;const ctl=startJob('Abrindo o PDF…');
+  try{
+    const lib=await loadPdfjs();
+    const doc=await lib.getDocument({data:new Uint8Array(await file.arrayBuffer())}).promise;
+    jobMsg('Lendo o texto da prova…');
+    let text='';for(let p=1;p<=doc.numPages;p++){const tc=await (await doc.getPage(p)).getTextContent();text+=`\n--- página ${p} ---\n`+tc.items.map(it=>it.str+(it.hasEOL?'\n':' ')).join('')}
+    text=text.slice(0,180000);
+    let r=null;const semGab=x=>!x||!x.gabarito||!Object.keys(x.gabarito).length;
+    const vazio=x=>!x||x.encontrado===false||(semGab(x)&&!(parseInt(x.total_questoes)>0));
+    if(text.replace(/\s/g,'').length>300){jobMsg('Procurando o gabarito…');
+      r=await sample.json(`Abaixo está o texto extraído do PDF de uma prova. Identifique a estrutura da prova (quantas questões, quais são dissertativas, o valor de cada questão) e o gabarito oficial das objetivas indicado no próprio documento.\n${FORMATO_GAB}\n\nTEXTO DO PDF:\n${text}`,{signal:ctl.signal})}
+    if((vazio(r)||semGab(r))&&imgLimits){
+      const n=doc.numPages,max=Math.max(1,imgLimits.maxCount||5);const pages=[];for(let p=Math.max(1,n-max+1);p<=n;p++)pages.push(p);
+      jobMsg('Olhando as páginas da prova…');
+      const imgs=await pdfPages(doc,pages);
+      const r2=await sample.json(`As imagens são as páginas ${pages[0]} a ${pages[pages.length-1]} (de ${n}) do PDF de uma prova. Identifique a estrutura e o gabarito oficial indicado no documento: uma tabela de gabarito, ou a alternativa correta destacada (negrito, cor, marcação) em cada questão.\n${FORMATO_GAB}`,{images:imgs,signal:ctl.signal});
+      if(vazio(r))r=r2;else if(r2&&!semGab(r2)){r.gabarito=r2.gabarito;if(Array.isArray(r2.anuladas)&&r2.anuladas.length)r.anuladas=r2.anuladas}}
+    if(vazio(r)){endJob('Não consegui identificar as questões nesse PDF. Cadastre a estrutura e o gabarito abaixo.',true);return}
+    r.gabarito=r.gabarito||{};
+    const g=r.gabarito;const keys=Object.keys(g).map(k=>parseInt(k)).filter(n=>n>0&&n<=200);
+    const vals=Object.values(g).map(v=>String(v).trim().toUpperCase());
+    const na=(vals.includes('E')||parseInt(r.alternativas)!==4)?5:4;
+    const disc=[...new Set((Array.isArray(r.dissertativas)?r.dissertativas:[]).map(n=>parseInt(n)-1))].filter(i=>i>=0&&i<200);
+    const nq=Math.min(200,Math.max(parseInt(r.total_questoes)||0,...keys,...disc.map(i=>i+1),1));
+    sim.nq=nq;sim.na=na;sim.disc=disc.filter(i=>i<nq).sort((a,b)=>a-b);
+    sim.gab=Array.from({length:nq},(_,i)=>{if(sim.disc.includes(i))return '.';const v=String(g[i+1]??'').trim().toUpperCase();return LETTERS.slice(0,na).includes(v)?v:'.'}).join('');
+    sim.anul=(Array.isArray(r.anuladas)?r.anuladas:[]).map(n=>parseInt(n)-1).filter(i=>i>=0&&i<nq&&!sim.disc.includes(i));
+    const pw=r.pesos&&typeof r.pesos==='object'?r.pesos:{};let nPesos=0;
+    sim.peso=Array.from({length:nq},(_,i)=>{const v=numBR(pw[i+1]);if(v!==null&&v>=0){nPesos++;return v}return (sim.peso&&sim.peso[i]!=null)?sim.peso[i]:null});
+    const re=r.respostas_esperadas&&typeof r.respostas_esperadas==='object'?r.respostas_esperadas:{};
+    sim.esp={};for(const i of sim.disc){const t=re[i+1];if(t)sim.esp[i]=String(t).slice(0,600)}
+    sim.alunos.forEach(a=>{a.resp=pad(a.resp,nq)});
+    persist(sim);
+    const nObj=nq-sim.disc.length,lidas=objetivas(sim).filter(i=>sim.gab[i]!=='.').length;
+    endJob(`Prova lida do PDF: ${nObj} objetivas (${lidas} com gabarito)${sim.disc.length?` e ${sim.disc.length} dissertativas`:''}${nPesos?`, com o peso de ${nPesos} ${nPesos===1?'questão':'questões'}`:', sem pesos indicados (todas valem 1)'}. Confira antes de corrigir.`);
+  }catch(e){endJob(e&&e.code?errMsg(e):'Não consegui abrir esse PDF. Confira se o arquivo não está protegido por senha.',true)}
+  if(S.cur===sim.id){S.tab='gabarito';S.aluno=null;render()}
+}
+function promptFoto(sim){
+  const L=LETTERS.slice(0,sim.na).split('').join(', ');
+  return `A imagem é a folha de respostas de um aluno (ou a própria prova com as alternativas marcadas) numa prova de múltipla escolha com ${sim.nq} questões e alternativas ${L}.
+Para cada questão de 1 a ${sim.nq}, diga qual alternativa o aluno marcou (bolinha preenchida, X, círculo ou letra escrita).
+Regras:
+- Questão sem marcação: "".
+- Mais de uma alternativa marcada, ou rasura que impede saber a resposta: "" e inclua o número em "duvidas".
+- Se tiver qualquer dúvida razoável na leitura de uma questão, dê sua melhor leitura e inclua o número em "duvidas".
+- Se for a folha padronizada "Folha de respostas", as questões estão em colunas numeradas, cada linha tem as bolinhas das alternativas em ordem, e os quadrados pretos nos cantos são só marcas de referência.
+- "nome": o nome do aluno se estiver escrito e legível; senão "".
+- Se a imagem não for uma folha de respostas ou estiver ilegível, use "legivel": false.
+Responda só com JSON neste formato:
+{"legivel": true, "nome": "", "respostas": {"1": "A", "2": ""}, "duvidas": [5, 12]}`;
+}
+/* OMR-CORE-START */
+/* Leitura óptica da folha padronizada, sem IA. Coordenadas da folha em mm (A4). */
+const FOLHA={W:210,H:297,M:12,r:2.7,perPage:100,
+  marks:[[10.5,10.5],[199.5,10.5],[199.5,286.5],[10.5,286.5]], // centros dos quadrados: TL, TR, BR, BL
+  bar:{x:16,y:9,w:10,h:3},                                   // barra de orientação (só no canto superior esquerdo)
+  slots:[190,186,182,178],slotY:9,slotW:1.5,slotH:3,           // marcas de número da página (pág. n = n marcas)
+  code:{x0:18,dx:3,y:285,w:2,h:3}};                             // código de 24 bits no rodapé: identifica o simulado
+/* questões que vão para a folha de bolinhas: todas menos as dissertativas */
+function objetivas(sim){const d=sim.disc||[];return Array.from({length:sim.nq},(_,i)=>i).filter(i=>!d.includes(i))}
+/* bits: 1 de início, 8 do nº de questões objetivas, 1 do nº de alternativas (0 = A–D, 1 = A–E),
+   14 de um resumo do id do simulado (e das dissertativas, se houver) */
+function folhaCode(sim){let x=0;const d=sim.disc||[];for(const c of String(sim.id||'')+(d.length?':'+d.slice().sort((a,b)=>a-b).join(','):''))x=(x*31+c.charCodeAt(0))>>>0;x&=0x3fff;
+  const nObj=objetivas(sim).length;
+  const b=[1];for(let i=7;i>=0;i--)b.push((nObj>>i)&1);b.push(sim.na===5?1:0);for(let i=13;i>=0;i--)b.push((x>>i)&1);return b}
+function layoutFolha(sim){
+  const {W,H,M,r,perPage}=FOLHA,obj=objetivas(sim),pages=Math.ceil(obj.length/perPage),out=[];
+  for(let pg=0;pg<pages;pg++){
+    const start=pg*perPage,count=Math.min(perPage,obj.length-start),cols=Math.ceil(count/25),rows=Math.ceil(count/cols);
+    const top=M+49,rowH=Math.min(9,(H-M-14-top)/rows),gap=cols>=4?6.8:7.4;
+    const colW=10+(sim.na-1)*gap+2*r+2,cg=cols>1?Math.min(16,(W-2*M-8-cols*colW)/(cols-1)):0,x0=(W-(cols*colW+(cols-1)*cg))/2;
+    const qs=[];
+    for(let c=0;c<cols;c++){const cx=x0+c*(colW+cg);
+      for(let k=0;k<rows;k++){const pos=start+c*rows+k;if(pos>=start+count)break;const q=obj[pos];
+        qs.push({q,k,cx,y:top+k*rowH+rowH/2,bx:Array.from({length:sim.na},(_,j)=>cx+10+j*gap+r)})}}
+    out.push({pg,start,count,cols,rows,rowH,colW,gap,qs});
+  }
+  return out;
+}
+function omrH(src,dst){
+  const A=[],b=[];
+  for(let i=0;i<4;i++){const [x,y]=src[i],[u,v]=dst[i];
+    A.push([x,y,1,0,0,0,-u*x,-u*y]);b.push(u);A.push([0,0,0,x,y,1,-v*x,-v*y]);b.push(v)}
+  for(let i=0;i<8;i++){let p=i;for(let k=i+1;k<8;k++)if(Math.abs(A[k][i])>Math.abs(A[p][i]))p=k;
+    [A[i],A[p]]=[A[p],A[i]];[b[i],b[p]]=[b[p],b[i]];const d=A[i][i];if(Math.abs(d)<1e-12)return null;
+    for(let k=0;k<8;k++){if(k===i)continue;const f=A[k][i]/d;if(!f)continue;for(let j=i;j<8;j++)A[k][j]-=f*A[i][j];b[k]-=f*b[i]}}
+  return b.map((v,i)=>v/A[i][i]);
+}
+function omrMap(h,x,y){const w=h[6]*x+h[7]*y+1;return [(h[0]*x+h[1]*y+h[2])/w,(h[3]*x+h[4]*y+h[5])/w]}
+function omrPx(img,h,x,y){const [u,v]=omrMap(h,x,y),i=Math.round(u),j=Math.round(v);return (i<0||j<0||i>=img.w||j>=img.h)?255:img.g[j*img.w+i]}
+function omrDisk(img,h,cx,cy,rad,step){let s=0,n=0;for(let y=-rad;y<=rad;y+=step)for(let x=-rad;x<=rad;x+=step){if(x*x+y*y>rad*rad)continue;s+=omrPx(img,h,cx+x,cy+y);n++}return s/n}
+function omrRing(img,h,cx,cy,rad,n){const v=[];for(let k=0;k<n;k++){const t=k/n*2*Math.PI;v.push(omrPx(img,h,cx+rad*Math.cos(t),cy+rad*Math.sin(t)))}return v}
+function omrMean(v){return v.reduce((a,b)=>a+b,0)/v.length}
+function omrPct(v,p){const s=v.slice().sort((a,b)=>a-b);return s[Math.min(s.length-1,Math.floor(p*s.length))]}
+function omrRect(img,h,x,y,w,ht){let s=0,n=0;for(let yy=y+0.3;yy<y+ht-0.2;yy+=0.5)for(let xx=x+0.3;xx<x+w-0.2;xx+=0.5){s+=omrPx(img,h,xx,yy);n++}return s/n}
+
+/* blocos escuros (candidatos a quadrado de canto) com limiar adaptativo */
+function omrBlobs(img){
+  const {g,w,h}=img,n=w*h,W1=w+1,I=new Float64Array(W1*(h+1));
+  for(let y=0;y<h;y++){let s=0;for(let x=0;x<w;x++){s+=g[y*w+x];I[(y+1)*W1+x+1]=I[y*W1+x+1]+s}}
+  const R=Math.max(8,Math.round(Math.max(w,h)/24)),bin=new Uint8Array(n);
+  for(let y=0;y<h;y++){const y0=Math.max(0,y-R),y1=Math.min(h,y+R+1);
+    for(let x=0;x<w;x++){const x0=Math.max(0,x-R),x1=Math.min(w,x+R+1);
+      const m=(I[y1*W1+x1]-I[y0*W1+x1]-I[y1*W1+x0]+I[y0*W1+x0])/((x1-x0)*(y1-y0)),v=g[y*w+x];
+      bin[y*w+x]=(v<m*0.72&&v<m-18)?1:0}}
+  const lab=new Uint8Array(n),st=new Int32Array(n),blobs=[];
+  for(let i=0;i<n;i++){if(!bin[i]||lab[i])continue;let sp=0;st[sp++]=i;lab[i]=1;let a=0,sx=0,sy=0,x0=w,x1=0,y0=h,y1=0;
+    while(sp){const p=st[--sp],x=p%w,y=(p-x)/w;a++;sx+=x;sy+=y;if(x<x0)x0=x;if(x>x1)x1=x;if(y<y0)y0=y;if(y>y1)y1=y;
+      if(x>0&&bin[p-1]&&!lab[p-1]){lab[p-1]=1;st[sp++]=p-1}
+      if(x<w-1&&bin[p+1]&&!lab[p+1]){lab[p+1]=1;st[sp++]=p+1}
+      if(y>0&&bin[p-w]&&!lab[p-w]){lab[p-w]=1;st[sp++]=p-w}
+      if(y<h-1&&bin[p+w]&&!lab[p+w]){lab[p+w]=1;st[sp++]=p+w}}
+    const bw=x1-x0+1,bh=y1-y0+1;
+    if(a>=Math.max(16,n*0.000012)&&a<=n*0.01&&bw/bh>0.5&&bw/bh<2&&a/(bw*bh)>0.5)blobs.push({a,x:sx/a,y:sy/a})}
+  return blobs;
+}
+function omrContrast(dark,light){return light>1?(light-dark)/light:0}
+function omrMarkScore(img,h){let s=0;for(const [x,y] of FOLHA.marks){const inner=omrDisk(img,h,x,y,1.5,0.5),ring=omrPct(omrRing(img,h,x,y,3.8,24),0.7);s+=omrContrast(inner,ring)}return s/4}
+function omrBarScore(img,h){const b=FOLHA.bar;const d=omrRect(img,h,b.x+0.5,b.y+0.5,b.w-1,b.h-1);const l=(omrRect(img,h,b.x,b.y-4,b.w,2.5)+omrRect(img,h,b.x+b.w+2,b.y,4,b.h))/2;return omrContrast(d,l)}
+function omrPage(img,h){let n=0;for(const x of FOLHA.slots){const d=omrRect(img,h,x-0.5,FOLHA.slotY+0.6,1,FOLHA.slotH-1.2),l=omrRect(img,h,x-0.5,FOLHA.slotY-3.5,1,2);if(omrContrast(d,l)>0.35)n++;else break}return n?n-1:null}
+function omrCode(img,h){const c=FOLHA.code;return Array.from({length:24},(_,k)=>{const x=c.x0+k*c.dx;
+  const d=omrRect(img,h,x+0.4,c.y+0.6,c.w-0.8,c.h-1.2),l=omrRect(img,h,x,c.y+c.h+1.2,c.w,2);return omrContrast(d,l)>0.35?1:0})}
+/* contorno impresso das bolinhas: confirma que a folha é deste simulado e acerta pequenos desvios */
+function omrOutline(img,h,bx,y,dx,dy){const r=FOLHA.r;let s=0,c=0;
+  for(let k=0;k<12;k++){const t=k/12*2*Math.PI,co=Math.cos(t),si=Math.sin(t);let m=255;
+    for(const rr of [r-0.25,r,r+0.25])m=Math.min(m,omrPx(img,h,bx+dx+rr*co,y+dy+rr*si));
+    const out=omrPx(img,h,bx+dx+(r+0.9)*co,y+dy+(r+0.9)*si);s+=omrContrast(m,out);c++}
+  return s/c}
+function omrGrid(img,h,page){const qs=page.qs,step=Math.max(1,Math.floor(qs.length/30));let s=0,n=0;
+  for(let i=0;i<qs.length;i+=step)for(const bx of qs[i].bx){s+=omrOutline(img,h,bx,qs[i].y,0,0);n++}return n?s/n:0}
+
+function omrDetect(img,sim,pgHint){
+  const blobs=omrBlobs(img);if(blobs.length<4)return {ok:false,motivo:'cantos'};
+  const K=5,pick=f=>blobs.slice().sort((a,b)=>f(a)-f(b)).slice(0,K);
+  const C=[pick(c=>c.x+c.y),pick(c=>c.y-c.x),pick(c=>-(c.x+c.y)),pick(c=>c.x-c.y)]; // TL, TR, BR, BL na imagem
+  const area=q=>{let s=0;for(let i=0;i<4;i++){const a=q[i],b=q[(i+1)%4];s+=a.x*b.y-b.x*a.y}return s/2};
+  const combos=[];
+  for(const a of C[0])for(const b of C[1])for(const c of C[2])for(const d of C[3]){
+    const q=[a,b,c,d];if(new Set(q).size<4)continue;
+    const A=area(q);if(A<img.w*img.h*0.12)continue;
+    const as=q.map(o=>o.a);if(Math.max(...as)/Math.min(...as)>3.5)continue;
+    const h=omrH(FOLHA.marks,q.map(o=>[o.x,o.y]));if(!h)continue;
+    combos.push({q,mk:omrMarkScore(img,h)})}
+  if(!combos.length)return {ok:false,motivo:'cantos'};
+  combos.sort((x,y)=>y.mk-x.mk);
+  const pages=layoutFolha(sim);if(!pages.length)return {ok:false,motivo:'folha'};let best=null;
+  for(const cb of combos.slice(0,3)){if(cb.mk<0.3)continue;
+    for(let r=0;r<4;r++){const dst=[0,1,2,3].map(i=>{const o=cb.q[(i+r)%4];return [o.x,o.y]});
+      const h=omrH(FOLHA.marks,dst);if(!h)continue;
+      const bar=omrBarScore(img,h);let pg=omrPage(img,h);const pgLido=pg!==null&&pg<pages.length;
+      if(!pgLido)pg=(pgHint!=null&&pgHint<pages.length)?pgHint:0;
+      const grid=omrGrid(img,h,pages[pg]),score=cb.mk+Math.max(0,bar)*0.75+grid*3;
+      if(!best||score>best.score)best={h,pg,pgLido,bar,grid,mk:cb.mk,score}}}
+  if(!best)return {ok:false,motivo:'cantos'};
+  if(best.grid<0.12)return {ok:false,motivo:'folha'};
+  const code=omrCode(img,best.h),esperado=folhaCode(sim);
+  if(code[0]===1){
+    if(code.join('')!==esperado.join('')){const nq=parseInt(code.slice(1,9).join(''),2),na=code[9]?5:4;
+      return {ok:false,motivo:'outro',nq,na}}
+    return Object.assign({ok:true,codigo:true},best)}
+  /* folha antiga, sem código: confere o número de alternativas: cada coluna de letra tem contorno, e não há uma bolinha a mais depois da última */
+  const pq=pages[best.pg].qs,st=Math.max(1,Math.floor(pq.length/30)),perJ=Array(sim.na).fill(0);let extra=0,antes=0,n=0;
+  for(let i=0;i<pq.length;i+=st){const q=pq[i];q.bx.forEach((bx,j)=>perJ[j]+=omrOutline(img,best.h,bx,q.y,0,0));
+    extra+=omrOutline(img,best.h,q.bx[sim.na-1]+pages[best.pg].gap,q.y,0,0);antes+=omrOutline(img,best.h,q.bx[0]-pages[best.pg].gap,q.y,0,0);n++}
+  return Object.assign({ok:true},best);
+}
+
+function omrRead(img,sim,pgHint){
+  const det=omrDetect(img,sim,pgHint);if(!det.ok)return det;
+  const {h}=det,page=layoutFolha(sim)[det.pg],L='ABCDE',r=FOLHA.r,rows=[],all=[];
+  for(const q of page.qs){
+    let bo={dx:0,dy:0,s:-1};
+    for(let dy=-1.2;dy<=1.21;dy+=0.4)for(let dx=-1.2;dx<=1.21;dx+=0.4){let s=0;for(const bx of q.bx)s+=omrOutline(img,h,bx,q.y,dx,dy);if(s>bo.s)bo={dx,dy,s}}
+    const d=q.bx.map(bx=>{const cx=bx+bo.dx,cy=q.y+bo.dy;const inner=omrDisk(img,h,cx,cy,r*0.55,0.3),paper=omrPct(omrRing(img,h,cx,cy,r*1.4,24),0.9);return Math.max(0,omrContrast(inner,paper))});
+    rows.push({q:q.q,d,dx:bo.dx,dy:bo.dy});all.push(...d);
+  }
+  const base=omrPct(all,0.5),resp={},duv=[],marks=[];
+  for(const row of rows){
+    const o=row.d.map((v,j)=>({j,v:v-base})).sort((a,b)=>b.v-a.v),t1=o[0],t2=o[1]||{v:0};
+    let ans='',doubt=false;
+    if(t1.v<0.15){ans=''}
+    else if(t1.v>=0.3&&t2.v>=0.3){ans='';doubt=true}
+    else if(t1.v>=0.3){ans=L[t1.j];doubt=t2.v>=0.15}
+    else{ans=(t1.v-t2.v>0.08)?L[t1.j]:'';doubt=true}
+    resp[row.q]=ans;if(doubt)duv.push(row.q);
+    row.d.forEach((v,j)=>{if(v-base>=0.15)marks.push({q:row.q,j,x:page.qs.find(x=>x.q===row.q).bx[j]+row.dx,y:page.qs.find(x=>x.q===row.q).y+row.dy,doubt})})
+  }
+  return {ok:true,pg:det.pg,pgLido:det.pgLido,h,resp,duv,marks,page,qualidade:det.grid};
+}
+/* OMR-CORE-END */
+
+/* ---------- leitura óptica: imagens e fluxo ---------- */
+async function omrImage(file){
+  let src;
+  try{src=await createImageBitmap(file,{imageOrientation:'from-image'})}
+  catch(e){src=await new Promise((res,rej)=>{const u=URL.createObjectURL(file),im=new Image();im.onload=()=>{res(im)};im.onerror=()=>{URL.revokeObjectURL(u);rej(e)};im.src=u})}
+  const w0=src.width||src.naturalWidth,h0=src.height||src.naturalHeight,s=Math.min(1,1600/Math.max(w0,h0));
+  const c=document.createElement('canvas');c.width=Math.round(w0*s);c.height=Math.round(h0*s);
+  const ctx=c.getContext('2d',{willReadFrequently:true});ctx.drawImage(src,0,0,c.width,c.height);
+  const d=ctx.getImageData(0,0,c.width,c.height).data,g=new Uint8Array(c.width*c.height);
+  for(let i=0,p=0;i<g.length;i++,p+=4)g[i]=(d[p]*77+d[p+1]*150+d[p+2]*29)>>8;
+  return {g,w:c.width,h:c.height};
+}
+/* desenha a folha "endireitada" (como se fosse escaneada) com o que foi lido por cima */
+function omrRender(img,h,x0,y0,wmm,hmm,ppm){
+  const c=document.createElement('canvas');c.width=Math.round(wmm*ppm);c.height=Math.round(hmm*ppm);
+  const ctx=c.getContext('2d'),id=ctx.createImageData(c.width,c.height),o=id.data;
+  for(let y=0;y<c.height;y++)for(let x=0;x<c.width;x++){const v=omrPx(img,h,x0+x/ppm,y0+y/ppm),p=(y*c.width+x)*4;o[p]=o[p+1]=o[p+2]=v;o[p+3]=255}
+  ctx.putImageData(id,0,0);return {c,ctx};
+}
+function omrPreviews(img,res){
+  const ppm=3,{c,ctx}=omrRender(img,res.h,0,0,FOLHA.W,FOLHA.H,ppm);
+  ctx.lineWidth=2.5;
+  for(const m of res.marks){ctx.strokeStyle=m.doubt?'#E08E00':'#1F6FEB';ctx.beginPath();ctx.arc(m.x*ppm,m.y*ppm,(FOLHA.r+0.9)*ppm,0,2*Math.PI);ctx.stroke()}
+  ctx.fillStyle='rgba(224,142,0,.18)';
+  for(const q of res.page.qs){if(!res.duv.includes(q.q))continue;ctx.fillRect((q.cx-1)*ppm,(q.y-res.page.rowH/2)*ppm,(res.page.colW+1)*ppm,res.page.rowH*ppm)}
+  const pagina=c.toDataURL('image/jpeg',0.72);
+  const nome=res.pg===0?omrRender(img,res.h,FOLHA.M,FOLHA.M+17,FOLHA.W-2*FOLHA.M,13,6).c.toDataURL('image/jpeg',0.8):null;
+  return {pagina,nome};
+}
+const OMR_MOTIVO={cantos:'não achei os 4 quadrados pretos',folha:'não é a folha de respostas deste simulado',outro:'é a folha de outro simulado'};
+async function lerFotos(sim,files){
+  if(S.busy||!files.length)return;
+  if(!objetivas(sim).length){endJob('Este simulado só tem dissertativas. Lance as notas em “Lançar notas das dissertativas”.',true);return}
+  const ctl=startJob(files.length>1?`Lendo foto 1 de ${files.length}…`:'Lendo a folha de respostas…');
+  const pages=layoutFolha(sim),okL=LETTERS.slice(0,sim.na);
+  let ok=0,porIA=0,ultimo=null,erro=null,pend=null;const falhas=[];
+  const iaOk=!!(sample&&imgLimits);
+  for(let k=0;k<files.length;k++){
+    if(ctl.signal.aborted)break;
+    if(files.length>1)jobMsg(`Lendo foto ${k+1} de ${files.length}…`);
+    await new Promise(r=>setTimeout(r,0));
+    let res=null;
+    try{const img=await omrImage(files[k]);
+      const hint=(pend&&pend.got.size<pages.length)?pend.got.size:0;
+      res=omrRead(img,sim,pages.length>1?hint:0);
+      if(res.ok)res.prev=omrPreviews(img,res);
+    }catch(e){res={ok:false,motivo:'imagem'}}
+    if(res.ok){
+      let a;
+      if(pend&&res.pg>0&&!pend.got.has(res.pg)){a=pend.a}
+      else{a={id:uid('a'),nome:`Prova ${sim.alunos.length+1} (nome a conferir)`,resp:'.'.repeat(sim.nq),duv:[]};sim.alunos.push(a);pend={a,got:new Set()};ok++;S.prev[a.id]={nome:null,paginas:[]}}
+      const arr=a.resp.split('');for(const q of res.page.qs)arr[q.q]=res.resp[q.q]||'.';a.resp=arr.join('');
+      a.duv=[...new Set(a.duv.concat(res.duv))].sort((x,y)=>x-y);pend.got.add(res.pg);
+      const pv=S.prev[a.id];pv.paginas[res.pg]=res.prev.pagina;if(res.prev.nome)pv.nome=res.prev.nome;
+      ultimo=a.id;continue;
+    }
+    if(res.motivo==='outro'){falhas.push(`foto ${k+1}: ${OMR_MOTIVO.outro}${res.nq?` (${res.nq} questões, A a ${res.na===5?'E':'D'})`:''}`);continue}
+    if(!iaOk){falhas.push(`foto ${k+1}: ${OMR_MOTIVO[res.motivo]||'imagem não pôde ser aberta'}`);continue}
+    /* folha diferente da padronizada: leitura pela IA */
+    try{
+      jobMsg(files.length>1?`Lendo foto ${k+1} de ${files.length} com IA…`:'Lendo a folha com IA…');
+      const img=await prepImage(files[k]);
+      const r=await sample.json(promptFoto(sim),{images:[img],signal:ctl.signal});
+      if(!r||r.legivel===false||!r.respostas){falhas.push(`foto ${k+1}: ilegível`);continue}
+      const resp=Array.from({length:sim.nq},(_,i)=>{const v=String(r.respostas[i+1]??'').trim().toUpperCase();return okL.includes(v)?v:'.'}).join('');
+      const duv=[...new Set((Array.isArray(r.duvidas)?r.duvidas:[]).map(n=>parseInt(n)-1).filter(i=>i>=0&&i<sim.nq))];
+      const nome=String(r.nome||'').trim()||`Prova ${sim.alunos.length+1} (nome a conferir)`;
+      const a={id:uid('a'),nome,resp,duv,ia:true};sim.alunos.push(a);ultimo=a.id;ok++;porIA++;pend=null;
+    }catch(e){erro=e;if(e&&['cancelled','not_granted','rate_limited','images_unavailable','session_expired'].includes(e.code)){falhas.push(`foto ${k+1}: ${errMsg(e)}`);break}falhas.push(`foto ${k+1}: ilegível`)}
+  }
+  if(ok)persist(sim);
+  let msg=ok?`${ok} ${ok===1?'prova lida':'provas lidas'}${porIA?` (${porIA} pela IA)`:''}. Confira as questões destacadas e os nomes.`:'Nenhuma prova foi lida.';
+  if(falhas.length)msg+=` Não li: ${falhas.slice(0,3).join('; ')}${falhas.length>3?` e mais ${falhas.length-3}`:''}.`;
+  endJob(msg,!ok);
+  if(S.cur===sim.id){S.tab='corrigir';S.aluno=(files.length<=pages.length&&ultimo&&ok===1)?ultimo:null;render();window.scrollTo(0,0)}
+}
+
+/* ---------- folha de respostas para imprimir ---------- */
+let jspdfReady=null;
+function loadJsPDF(){if(!jspdfReady){jspdfReady=loadScript('https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js').then(()=>window.jspdf.jsPDF);jspdfReady.catch(()=>{jspdfReady=null})}return jspdfReady}
+async function folhaPDF(sim){
+  if(!downloads||S.busy)return;
+  if(!objetivas(sim).length){endJob('Este simulado não tem questões objetivas, então não há folha de bolinhas.',true);return}
+  let jsPDF;try{jsPDF=await loadJsPDF()}catch(e){endJob('Não consegui gerar o PDF agora. Verifique a conexão.',true);return}
+  const doc=new jsPDF({unit:'mm',format:'a4'});
+  const {W,H,M,r}=FOLHA,L=LETTERS.slice(0,sim.na),lay=layoutFolha(sim),pages=lay.length,bits=folhaCode(sim);
+  const nome=doc.splitTextToSize(sim.nome,150)[0];
+  for(const P of lay){const pg=P.pg;
+    if(pg)doc.addPage();
+    doc.setFillColor(0,0,0);FOLHA.marks.forEach(([x,y])=>doc.rect(x-2.5,y-2.5,5,5,'F'));
+    const b=FOLHA.bar;doc.rect(b.x,b.y,b.w,b.h,'F');
+    for(let k=0;k<=Math.min(pg,FOLHA.slots.length-1);k++)doc.rect(FOLHA.slots[k]-FOLHA.slotW/2,FOLHA.slotY,FOLHA.slotW,FOLHA.slotH,'F');
+    bits.forEach((v,k)=>{if(v)doc.rect(FOLHA.code.x0+k*FOLHA.code.dx,FOLHA.code.y,FOLHA.code.w,FOLHA.code.h,'F')});
+    doc.setTextColor(0);doc.setDrawColor(0);doc.setLineWidth(0.3);
+    doc.setFont('helvetica','bold');doc.setFontSize(16);doc.text('Folha de respostas',M+4,M+8);
+    doc.setFont('helvetica','normal');doc.setFontSize(10);doc.text(nome,M+4,M+14);
+    if(pages>1)doc.text(`Página ${pg+1} de ${pages}`,W-M-4,M+8,{align:'right'});
+    let y=M+25;
+    doc.text('Nome:',M+4,y);doc.line(M+17,y+0.8,W-M-4,y+0.8);
+    y+=9;doc.text('Turma:',M+4,y);doc.line(M+18,y+0.8,M+70,y+0.8);doc.text('RA:',M+76,y);doc.line(M+84,y+0.8,M+130,y+0.8);doc.text('Data:',M+136,y);doc.line(M+147,y+0.8,W-M-4,y+0.8);
+    y+=8;doc.setFontSize(8.5);doc.setTextColor(80);doc.text('Preencha totalmente a bolinha da alternativa escolhida, com caneta azul ou preta. Marque só uma por questão e não rasure.',M+4,y);doc.setTextColor(0);
+    for(const q of P.qs){
+      if(q.k%2===0){doc.setFillColor(238,238,238);doc.rect(q.cx-1,q.y-P.rowH/2,P.colW+1,P.rowH,'F')}
+      doc.setFont('helvetica','bold');doc.setFontSize(9.5);doc.setTextColor(0);doc.text(String(q.q+1),q.cx+7,q.y+1.2,{align:'right'});
+      doc.setFont('helvetica','normal');doc.setFontSize(6.5);
+      q.bx.forEach((bx,j)=>{doc.setFillColor(255,255,255);doc.circle(bx,q.y,r,'FD');doc.setTextColor(150);doc.text(L[j],bx,q.y+0.85,{align:'center'})});
+    }
+    doc.setTextColor(110);doc.setFontSize(8);doc.text(`${nome}: ${objetivas(sim).length} objetivas, alternativas A a ${L[L.length-1]}${(sim.disc||[]).length?`. Dissertativas (${faixas(sim.disc)}): responda na prova.`:''}`,W/2,H-M-2.5,{align:'center'});
+  }
+  const slug=(sim.nome.normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/[^\w-]+/g,'-').replace(/^-|-$/g,'')||'simulado');
+  try{await downloads.save({filename:slug+'-folha-de-respostas.pdf',data:doc.output('blob')})}
+  catch(e){if(e&&e.code!=='declined')endJob('Não foi possível baixar o PDF agora.',true)}
+}
+
+/* ---------- telas ---------- */
+function render(){
+  if(!S.cur||!cur()){S.cur=null;return renderHome()}
+  renderSim();
+}
+
+function renderHome(){
+  const list=S.sims.slice().sort((a,b)=>(b.criado||0)-(a.criado||0));
+  app.innerHTML=`
+  <section class="card stack" aria-labelledby="novo">
+    <h2 id="novo" style="font-size:1.15rem">Novo simulado</h2>
+    <div><label class="f" for="nNome">Nome</label><input type="text" id="nNome" placeholder="Ex.: Simulado de Fundamentos, turma A"></div>
+    <div class="row">
+      <div><label class="f" for="nQ">Questões</label><input type="number" id="nQ" min="1" max="200" value="20" inputmode="numeric"></div>
+      <div><label class="f" for="nA">Alternativas</label><select id="nA"><option value="4">A a D</option><option value="5" selected>A a E</option></select></div>
+      <div><label class="f" for="nM">Nota máxima</label><input type="number" id="nM" min="1" max="1000" value="10" inputmode="decimal"></div>
+    </div>
+    <div class="actions" style="margin-top:4px"><button class="btn" id="criar">Criar simulado</button>${sample?`<button class="btn ghost" id="criarPdf">Criar a partir da prova em PDF</button>`:''}</div>
+  </section>
+  <h2 style="font-size:1.1rem;margin:26px 0 10px">Seus simulados</h2>
+  ${list.length?`<div class="simlist">${list.map(s=>{
+    const notas=s.alunos.map(a=>score(s,a.resp,a.pts).nota);
+    const media=notas.length?notas.reduce((x,y)=>x+y,0)/notas.length:null;
+    return `<button class="simitem" data-open="${s.id}"><span><strong>${esc(s.nome)}</strong><span class="small muted">${s.nq} questões, ${s.alunos.length} ${s.alunos.length===1?'prova corrigida':'provas corrigidas'}</span></span>${media!==null?`<span class="pill">${fmt(media)}</span>`:''}</button>`}).join('')}</div>`
+  :`<div class="card empty muted">Nenhum simulado ainda. Crie o primeiro acima e cadastre o gabarito.</div>`}
+  ${store.kind==='local'?`<p class="hint" style="margin-top:16px">Os dados ficam salvos só neste aparelho.</p>`:''}`;
+  app.querySelector('#criar').onclick=()=>{
+    const nq=Math.min(200,Math.max(1,parseInt(app.querySelector('#nQ').value)||20));
+    const sim={id:uid('s'),nome:app.querySelector('#nNome').value.trim()||'Simulado sem nome',nq,na:parseInt(app.querySelector('#nA').value),
+      max:Math.max(1,parseFloat(String(app.querySelector('#nM').value).replace(',','.'))||10),gab:'.'.repeat(nq),anul:[],alunos:[],criado:Date.now()};
+    S.sims.push(sim);persist(sim);S.cur=sim.id;S.tab='gabarito';S.aluno=null;render();window.scrollTo(0,0);
+  };
+  const cp=app.querySelector('#criarPdf');
+  if(cp)cp.onclick=async()=>{
+    const [f]=await pickFiles('application/pdf,.pdf',false);if(!f)return;
+    const sim={id:uid('s'),nome:app.querySelector('#nNome').value.trim()||f.name.replace(/\.pdf$/i,''),nq:20,na:5,max:Math.max(1,parseFloat(String(app.querySelector('#nM').value).replace(',','.'))||10),gab:'.'.repeat(20),anul:[],alunos:[],criado:Date.now()};
+    S.sims.push(sim);persist(sim);S.cur=sim.id;S.tab='gabarito';S.aluno=null;render();window.scrollTo(0,0);
+    lerPDF(sim,f);
+  };
+  app.querySelectorAll('[data-open]').forEach(b=>b.onclick=()=>{S.cur=b.dataset.open;const s=cur();S.tab=gabFaltando(s)===s.nq?'gabarito':'corrigir';S.aluno=null;render();window.scrollTo(0,0)});
+}
+
+function renderSim(){
+  const sim=cur();
+  app.innerHTML=`
+  <button class="back" id="voltar">‹ Todos os simulados</button>
+  <h1 class="simtitle">${esc(sim.nome)}</h1>
+  <div class="tabs" role="tablist">
+    ${[['gabarito','Gabarito'],['corrigir','Corrigir'],['resultados','Resultados']].map(([k,l])=>`<button role="tab" aria-selected="${S.tab===k}" data-tab="${k}">${l}</button>`).join('')}
+  </div>
+  <div id="pane"></div>`;
+  app.querySelector('#voltar').onclick=()=>{S.cur=null;S.aluno=null;S.lancar=false;render();window.scrollTo(0,0)};
+  app.querySelectorAll('[data-tab]').forEach(b=>b.onclick=()=>{S.tab=b.dataset.tab;S.aluno=null;S.lancar=false;S.openQ=null;render()});
+  const pane=app.querySelector('#pane');
+  if(S.tab==='gabarito')paneGab(pane,sim);
+  else if(S.tab==='corrigir'){S.aluno?paneAluno(pane,sim):S.lancar?paneLancar(pane,sim):paneLista(pane,sim)}
+  else paneRes(pane,sim);
+}
+
+function bubblesHTML(sim,i,val,key){
+  let h='';for(let k=0;k<sim.na;k++){const L=LETTERS[k];
+    h+=`<button class="bub${val===L?' on':''}${key===L?' key':''}" data-q="${i}" data-a="${L}" aria-label="Questão ${i+1}, alternativa ${L}" aria-pressed="${val===L}">${L}</button>`}
+  return h;
+}
+
+/* --- gabarito --- */
+function paneGab(pane,sim){
+  const falta=gabFaltando(sim);
+  pane.innerHTML=`
+  ${(sample||downloads)?`<div class="tools">${sample?`<button class="btn ghost" id="gPdf">Ler a prova em PDF</button>`:''}${downloads?`<button class="btn ghost" id="gFolha">Baixar folha de respostas (PDF)</button>`:''}</div>`:''}
+  <section class="card stack" style="margin-bottom:14px" aria-labelledby="estrT">
+    <h2 id="estrT" style="font-size:1.05rem">Estrutura e pesos</h2>
+    <p class="small" id="estrRes" style="margin:0">${esc(resumoEstrutura(sim))}</p>
+    <div class="row">
+      <div><label class="f" for="bQ">Questões</label><input type="text" id="bQ" placeholder="Ex.: 17-20" inputmode="text" autocomplete="off"></div>
+      <div><label class="f" for="bT">Tipo</label><select id="bT"><option value="">Manter</option><option value="o">Objetiva</option><option value="d">Dissertativa</option></select></div>
+      <div><label class="f" for="bP">Peso (pontos)</label><input type="text" id="bP" inputmode="decimal" placeholder="Manter" autocomplete="off"></div>
+    </div>
+    <div class="actions" style="margin-top:0"><button class="btn ghost" id="bOk">Aplicar</button><span class="small muted" id="bMsg" aria-live="polite" style="align-self:center"></span></div>
+    <details><summary style="cursor:pointer;font-weight:700">Peso de cada questão</summary><div class="pgrid" id="pGrid">${pesoGrid(sim)}</div></details>
+  </section>
+  <p class="hint">Toque na alternativa certa de cada questão objetiva. Uma questão anulada conta como acerto para todos. As dissertativas são corrigidas por você e a pontuação é lançada em "Corrigir".</p>
+  <div class="card" style="margin:12px 0">
+    <label class="f" for="gText">Ou digite o gabarito das objetivas em sequência</label>
+    <textarea id="gText" rows="2" placeholder="ABDCE BACDA…" spellcheck="false" autocapitalize="characters">${esc(seqTxt(sim,sim.gab))}</textarea>
+    <p class="hint" style="margin:6px 0 0">Espaços são ignorados. Use - para pular uma questão.</p>
+  </div>
+  ${falta?`<div class="warn" id="gWarn">Faltam ${falta} ${falta===1?'questão':'questões'} no gabarito.</div>`:''}
+  <div class="sheet" id="gSheet" style="margin-top:12px">${gabRows(sim)}</div>
+  <details class="card" style="margin-top:18px"><summary style="cursor:pointer;font-weight:700">Ajustes do simulado</summary>
+    <div class="stack" style="margin-top:12px">
+      <div><label class="f" for="eNome">Nome</label><input type="text" id="eNome" value="${esc(sim.nome)}"></div>
+      <div class="row">
+        <div><label class="f" for="eQ">Questões</label><input type="number" id="eQ" min="1" max="200" value="${sim.nq}"></div>
+        <div><label class="f" for="eA">Alternativas</label><select id="eA"><option value="4"${sim.na===4?' selected':''}>A a D</option><option value="5"${sim.na===5?' selected':''}>A a E</option></select></div>
+        <div><label class="f" for="eM">Nota máxima</label><input type="number" id="eM" min="1" value="${sim.max}"></div>
+      </div>
+      <div class="actions"><button class="btn ghost" id="eSalvar">Aplicar ajustes</button><button class="btn danger" id="eDel">Excluir simulado</button></div>
+    </div>
+  </details>`;
+  const gf=pane.querySelector('#gFolha');if(gf)gf.onclick=()=>folhaPDF(sim);
+  const gp=pane.querySelector('#gPdf');if(gp)gp.onclick=async()=>{const [f]=await pickFiles('application/pdf,.pdf',false);if(f)lerPDF(sim,f)};
+  const sheet=pane.querySelector('#gSheet'), ta=pane.querySelector('#gText');
+  const refresh=()=>{sheet.innerHTML=gabRows(sim);ta.value=seqTxt(sim,sim.gab);pane.querySelector('#estrRes').textContent=resumoEstrutura(sim);const w=pane.querySelector('#gWarn');const f=gabFaltando(sim);if(w){w.textContent=f?`Faltam ${f} ${f===1?'questão':'questões'} no gabarito.`:'Gabarito completo.'}};
+  sheet.onclick=e=>{
+    const b=e.target.closest('.bub');const t=e.target.closest('[data-anul]');
+    if(b){const i=+b.dataset.q,L=b.dataset.a;const arr=sim.gab.split('');arr[i]=arr[i]===L?'.':L;sim.gab=arr.join('');persist(sim);refresh()}
+    else if(t){const i=+t.dataset.anul;sim.anul=sim.anul.includes(i)?sim.anul.filter(x=>x!==i):sim.anul.concat(i);persist(sim);refresh()}
+  };
+  ta.oninput=()=>{sim.gab=aplicaSeq(sim,sim.gab,ta.value);sheet.innerHTML=gabRows(sim);const w=pane.querySelector('#gWarn');const f=gabFaltando(sim);if(w)w.textContent=f?`Faltam ${f} ${f===1?'questão':'questões'} no gabarito.`:'Gabarito completo.';persist(sim)};
+  const pGrid=pane.querySelector('#pGrid');
+  pGrid.oninput=e=>{const t=e.target.closest('[data-pw]');if(!t)return;const i=+t.dataset.pw,v=numBR(t.value);
+    if(!sim.peso)sim.peso=[];sim.peso[i]=(t.value.trim()===''||v===null)?null:Math.max(0,v);persist(sim);
+    pane.querySelector('#estrRes').textContent=resumoEstrutura(sim);sheet.innerHTML=gabRows(sim)};
+  pane.querySelector('#bOk').onclick=()=>{
+    const msg=pane.querySelector('#bMsg'),idx=parseFaixas(pane.querySelector('#bQ').value,sim.nq),tipo=pane.querySelector('#bT').value,pt=pane.querySelector('#bP').value.trim();
+    if(!idx||!idx.length){msg.textContent='Informe as questões, ex.: 17-20 ou 1-16, 18.';return}
+    const w=pt?numBR(pt):null;if(pt&&(w===null||w<0)){msg.textContent='Peso inválido.';return}
+    if(!tipo&&!pt){msg.textContent='Escolha o tipo ou informe o peso.';return}
+    if(!sim.peso)sim.peso=[];if(!sim.disc)sim.disc=[];
+    for(const i of idx){
+      if(pt)sim.peso[i]=w;
+      if(tipo==='d'&&!sim.disc.includes(i)){sim.disc.push(i);sim.gab=sim.gab.slice(0,i)+'.'+sim.gab.slice(i+1);sim.anul=sim.anul.filter(x=>x!==i);
+        sim.alunos.forEach(a=>{a.resp=a.resp.slice(0,i)+'.'+a.resp.slice(i+1);if(a.duv)a.duv=a.duv.filter(x=>x!==i)})}
+      if(tipo==='o'&&sim.disc.includes(i)){sim.disc=sim.disc.filter(x=>x!==i);sim.alunos.forEach(a=>{if(a.pts)delete a.pts[i]})}
+    }
+    sim.disc.sort((a,b)=>a-b);persist(sim);render();
+  };
+  pane.querySelector('#eSalvar').onclick=()=>{
+    const nq=Math.min(200,Math.max(1,parseInt(pane.querySelector('#eQ').value)||sim.nq));
+    sim.nome=pane.querySelector('#eNome').value.trim()||sim.nome;
+    sim.na=parseInt(pane.querySelector('#eA').value);
+    sim.max=Math.max(1,parseFloat(String(pane.querySelector('#eM').value).replace(',','.'))||sim.max);
+    sim.nq=nq;sim.gab=pad(sim.gab,nq);sim.anul=sim.anul.filter(i=>i<nq);if(sim.disc)sim.disc=sim.disc.filter(i=>i<nq);if(sim.peso)sim.peso=sim.peso.slice(0,nq);
+    const okL=LETTERS.slice(0,sim.na);
+    sim.gab=sim.gab.split('').map(c=>okL.includes(c)?c:'.').join('');
+    sim.alunos.forEach(a=>{a.resp=pad(a.resp,nq).split('').map(c=>okL.includes(c)?c:'.').join('')});
+    persist(sim);render();
+  };
+  pane.querySelector('#eDel').onclick=async()=>{
+    if(!confirm(`Excluir “${sim.nome}” e todas as provas corrigidas?`))return;
+    S.sims=S.sims.filter(s=>s.id!==sim.id);clearTimeout(timers[sim.id]);
+    try{await store.remove(sim.id);saveEl.textContent='Simulado excluído'}catch(e){saveEl.textContent='Não foi possível excluir'}
+    S.cur=null;render();
+  };
+}
+function pesoGrid(sim){let h='';for(let i=0;i<sim.nq;i++){const d=isDisc(sim,i),p=sim.peso&&sim.peso[i];
+  h+=`<label class="pcell${d?' d':''}"><span>${i+1}${d?' <b>D</b>':''}</span><input type="text" inputmode="decimal" data-pw="${i}" value="${(p===undefined||p===null||p==='')?'':String(p).replace('.',',')}" placeholder="1" aria-label="Peso da questão ${i+1}"></label>`}
+  return h}
+function espHTML(sim,i){const t=sim.esp&&sim.esp[i];return t?`<details class="esp"><summary>Resposta esperada</summary><p>${esc(t)}</p></details>`:''}
+function gabRows(sim){
+  let h='';for(let i=0;i<sim.nq;i++){const an=sim.anul.includes(i);
+    if(isDisc(sim,i)){h+=`<div class="q disc"><span class="qn">${i+1}</span><div><span class="small muted">Dissertativa, vale ${fmtN(peso(sim,i))} ${peso(sim,i)===1?'ponto':'pontos'}</span>${espHTML(sim,i)}</div><span></span></div>`;continue}
+    h+=`<div class="q${an?' null':''}"><span class="qn">${i+1}</span><div class="bubbles">${bubblesHTML(sim,i,sim.gab[i],null)}</div><button class="toggle${an?' on':''}" data-anul="${i}" aria-pressed="${an}">${an?'Anulada':'Anular'}</button></div>`}
+  return h;
+}
+function seqTxt(sim,str){return objetivas(sim).map(i=>str[i]==='.'||!str[i]?'-':str[i]).join('').replace(/-+$/,'')}
+function aplicaSeq(sim,str,txt){const arr=pad(str,sim.nq).split(''),seq=parseSeq(txt,sim.na),ob=objetivas(sim);ob.forEach((i,k)=>{arr[i]=seq[k]||'.'});return arr.join('')}
+function parseSeq(txt,na){
+  const okL=LETTERS.slice(0,na);let out='';
+  for(const c of txt.toUpperCase()){if(okL.includes(c))out+=c;else if(c==='-'||c==='.'||c==='_'||c==='X'||c==='*')out+='.'}
+  return out;
+}
+
+/* --- lista de provas --- */
+function paneLista(pane,sim){
+  const falta=gabFaltando(sim);
+  const al=sim.alunos.map(a=>({a,s:score(sim,a.resp,a.pts)})).sort((x,y)=>x.a.nome.localeCompare(y.a.nome,'pt-BR'));
+  pane.innerHTML=`
+  ${falta?`<div class="warn" style="margin-bottom:12px">O gabarito ainda tem ${falta} ${falta===1?'questão':'questões'} sem resposta. Elas não entram na nota até serem preenchidas.</div>`:''}
+  <div class="tools">
+    <button class="btn" id="foto">Ler folhas por foto</button>
+    <button class="btn ghost" id="nova">Corrigir à mão</button>
+    ${(sim.disc||[]).length&&sim.alunos.length?`<button class="btn ghost" id="lanc">Lançar notas das dissertativas</button>`:''}
+    ${downloads?`<button class="btn ghost" id="folha">Baixar folha de respostas (PDF)</button>`:''}
+  </div>
+  <p class="hint" style="margin:-4px 0 14px">Com a folha de respostas do sistema, a leitura é instantânea e feita no próprio aparelho. Uma foto por página, com os 4 quadrados pretos aparecendo; dá para escolher várias de uma vez.${imgLimits?' Outras folhas são lidas pela IA.':''}</p>
+  ${al.length?`<div class="alunos">${al.map(({a,s})=>`<button class="aluno" data-al="${a.id}"><span><strong>${esc(a.nome||'Sem nome')}</strong><br><span class="small muted">${s.ac} de ${s.val} acertos</span>${(a.duv&&a.duv.length)?` <span class="small amber">· ${a.duv.length} para conferir</span>`:''}${s.pend?` <span class="small amber">· ${s.pend} ${s.pend===1?'dissertativa':'dissertativas'} sem nota</span>`:''}</span><span class="pill">${fmt(s.nota)}</span></button>`).join('')}</div>`
+  :`<div class="card empty muted">Nenhuma prova corrigida ainda. Pegue a primeira da pilha e toque em “Corrigir nova prova”.</div>`}`;
+  pane.querySelector('#nova').onclick=()=>novaProva(sim);
+  const lc=pane.querySelector('#lanc');if(lc)lc.onclick=()=>{S.lancar=true;render();window.scrollTo(0,0)};
+  const fl=pane.querySelector('#folha');if(fl)fl.onclick=()=>folhaPDF(sim);
+  const fb=pane.querySelector('#foto');if(fb)fb.onclick=async()=>{const fs=await pickFiles('image/*',true);if(fs.length)lerFotos(sim,fs.slice(0,120))};
+  pane.querySelectorAll('[data-al]').forEach(b=>b.onclick=()=>{S.aluno=b.dataset.al;render();window.scrollTo(0,0)});
+}
+/* --- lançamento das dissertativas em tabela (aluno × questão) --- */
+function paneLancar(pane,sim){
+  const d=sim.disc||[],al=sim.alunos.slice().sort((x,y)=>x.nome.localeCompare(y.nome,'pt-BR'));
+  const esp=d.filter(i=>sim.esp&&sim.esp[i]);
+  pane.innerHTML=`
+  <button class="back" id="lVolta">‹ Provas corrigidas</button>
+  <p class="hint" style="margin-top:0">Digite a pontuação de cada dissertativa. Deixe em branco o que ainda não corrigiu. Enter passa para o próximo campo.</p>
+  ${esp.length?`<details class="card" style="margin-bottom:12px"><summary style="cursor:pointer;font-weight:700">Respostas esperadas</summary>${esp.map(i=>`<p class="small"><b>Questão ${i+1}:</b> ${esc(sim.esp[i])}</p>`).join('')}</details>`:''}
+  <div class="card" style="padding:0;overflow-x:auto">
+  <table class="lt"><thead><tr><th class="ln">Aluno</th>${d.map(i=>`<th>Q${i+1}<br><span class="small muted">de ${fmtN(peso(sim,i))}</span></th>`).join('')}<th>Nota</th></tr></thead><tbody>
+  ${al.map(a=>`<tr data-al="${a.id}"><td class="ln">${esc(a.nome||'Sem nome')}</td>${d.map(i=>`<td><input type="text" inputmode="decimal" enterkeyhint="next" data-pq="${i}" value="${temPts(a.pts,i)?String(a.pts[i]).replace('.',','):''}" aria-label="${esc(a.nome||'Aluno')}, questão ${i+1}"></td>`).join('')}<td class="nt"><span class="pill">${fmt(score(sim,a.resp,a.pts).nota)}</span></td></tr>`).join('')}
+  </tbody></table></div>`;
+  pane.querySelector('#lVolta').onclick=()=>{S.lancar=false;render();window.scrollTo(0,0)};
+  const tb=pane.querySelector('tbody'),inputs=[...tb.querySelectorAll('input')];
+  tb.oninput=e=>{const t=e.target.closest('[data-pq]');if(!t)return;const tr=t.closest('tr'),a=sim.alunos.find(x=>x.id===tr.dataset.al),i=+t.dataset.pq;if(!a)return;
+    const v=numBR(t.value);a.pts=a.pts||{};if(t.value.trim()===''||v===null)delete a.pts[i];else a.pts[i]=Math.min(peso(sim,i),Math.max(0,v));
+    t.classList.toggle('over',v!==null&&v>peso(sim,i));tr.querySelector('.nt').innerHTML=`<span class="pill">${fmt(score(sim,a.resp,a.pts).nota)}</span>`;persist(sim)};
+  tb.onkeydown=e=>{if(e.key!=='Enter')return;const k=inputs.indexOf(e.target);if(k>=0&&inputs[k+1]){e.preventDefault();inputs[k+1].focus();inputs[k+1].select()}};
+}
+function novaProva(sim){
+  const a={id:uid('a'),nome:'',resp:'.'.repeat(sim.nq)};
+  sim.alunos.push(a);S.aluno=a.id;render();window.scrollTo(0,0);
+  const n=document.getElementById('aNome');if(n)n.focus();
+}
+
+/* --- correção de uma prova --- */
+function paneAluno(pane,sim){
+  const a=sim.alunos.find(x=>x.id===S.aluno);if(!a){S.aluno=null;return render()}
+  const pv=S.prev[a.id],semNome=/\(nome a conferir\)$/.test(a.nome);
+  pane.innerHTML=`
+  ${(a.duv&&a.duv.length)?`<div class="warn" style="margin-bottom:12px;display:flex;gap:10px;align-items:center;justify-content:space-between;flex-wrap:wrap" id="aDuv"><span>Lida por foto. Confira na folha ${a.duv.length===1?'a questão destacada':'as '+a.duv.length+' questões destacadas'}.</span><button class="toggle on" id="aConf">Tudo conferido</button></div>`:''}
+  <div class="card stack">
+    ${pv&&pv.nome?`<div><span class="f">Nome escrito na folha</span><img class="namecrop" src="${pv.nome}" alt="Recorte do campo Nome da folha fotografada"></div>`:''}
+    <div><label class="f" for="aNome">Nome do aluno</label><input type="text" id="aNome" value="${semNome?'':esc(a.nome)}" placeholder="${semNome?esc(a.nome):'Nome como está na prova'}" autocomplete="off"></div>
+    <div><label class="f" for="aText">Respostas das objetivas em sequência (opcional)</label>
+    <textarea id="aText" rows="2" spellcheck="false" autocapitalize="characters" placeholder="Digite as letras marcadas: ABDC-E…">${esc(seqTxt(sim,a.resp))}</textarea>
+    <p class="hint" style="margin:6px 0 0">Ou toque nas bolinhas abaixo. Use - para questão em branco ou rasurada.</p></div>
+  </div>
+  <div class="score" id="aScore"></div>
+  <div class="sheet" id="aSheet"></div>
+  ${pv&&pv.paginas.some(Boolean)?`<details class="card" style="margin-top:14px"><summary style="cursor:pointer;font-weight:700">Ver a folha como foi lida</summary><p class="hint">Azul: marcação lida. Laranja: questão para conferir.</p>${pv.paginas.map((u,i)=>u?`<img class="scan" src="${u}" alt="Folha fotografada, página ${i+1}">`:'').join('')}</details>`:''}
+  <div class="actions">
+    <button class="btn" id="aProx">Salvar e corrigir a próxima</button>
+    <button class="btn ghost" id="aOk">Salvar</button>
+    <button class="btn plain" id="aDel">Excluir prova</button>
+  </div>`;
+  const sheet=pane.querySelector('#aSheet'),ta=pane.querySelector('#aText'),sc=pane.querySelector('#aScore');
+  const drawScore=()=>{const s=score(sim,a.resp,a.pts),ob=objetivas(sim),marcadas=ob.filter(i=>a.resp[i]&&a.resp[i]!=='.').length;
+    sc.innerHTML=`<div class="grade">${fmt(s.nota)} <small>/ ${fmt(sim.max)}</small></div><div class="tally"><b>${fmtN(s.pt)}</b> de ${fmtN(s.tot)} pontos<br>${s.ac} de ${s.val} objetivas certas${s.pend?`<br><span class="amber">${s.pend} ${s.pend===1?'dissertativa':'dissertativas'} sem nota</span>`:''}</div>`};
+  const draw=()=>{
+    let h='';for(let i=0;i<sim.nq;i++){
+      if(isDisc(sim,i)){const w=peso(sim,i),tem=temPts(a.pts,i);
+        h+=`<div class="q disc${tem?'':' blank'}" data-row="${i}"><span class="qn">${i+1}</span><div><div class="dinput"><input type="text" inputmode="decimal" class="pts" data-pq="${i}" value="${tem?String(a.pts[i]).replace('.',','):''}" placeholder="–" aria-label="Pontos da questão ${i+1}"><span class="small muted">de ${fmtN(w)}</span></div>${espHTML(sim,i)}</div><span class="mark">${tem?'':'corrigir'}</span></div>`;continue}
+      const g=sim.gab[i],r=a.resp[i],an=sim.anul.includes(i);let cls='',mk='';
+      if(an){cls='null';mk='anulada'}
+      else if(!g||g==='.'){mk=''}
+      else if(r==='.'||!r){cls='blank';mk='em branco'}
+      else if(r===g){cls='ok';mk='✓ certa'}
+      else{cls='bad';mk='✗ era '+g}
+      const showKey=(cls==='bad'||cls==='blank')?g:null;
+      if(a.duv&&a.duv.includes(i)){cls+=' doubt';mk='conferir'}
+      h+=`<div class="q ${cls}"><span class="qn">${i+1}</span><div class="bubbles">${bubblesHTML(sim,i,r,showKey)}</div><span class="mark">${mk}</span></div>`}
+    sheet.innerHTML=h;drawScore();
+  };
+  draw();
+  sheet.onclick=e=>{const b=e.target.closest('.bub');if(!b)return;const i=+b.dataset.q,L=b.dataset.a;const arr=a.resp.split('');arr[i]=arr[i]===L?'.':L;a.resp=arr.join('');if(a.duv){a.duv=a.duv.filter(x=>x!==i);const d=pane.querySelector('#aDuv');if(d&&!a.duv.length)d.remove()}ta.value=seqTxt(sim,a.resp);draw();persist(sim)};
+  sheet.oninput=e=>{const t=e.target.closest('[data-pq]');if(!t)return;const i=+t.dataset.pq,w=peso(sim,i),v=numBR(t.value);a.pts=a.pts||{};
+    if(t.value.trim()===''||v===null)delete a.pts[i];else a.pts[i]=Math.min(w,Math.max(0,v));
+    t.classList.toggle('over',v!==null&&v>w);const row=t.closest('.q'),tem=temPts(a.pts,i);row.classList.toggle('blank',!tem);row.querySelector('.mark').textContent=tem?'':'corrigir';drawScore();persist(sim)};
+  ta.oninput=()=>{a.resp=aplicaSeq(sim,a.resp,ta.value);draw();persist(sim)};
+  const ac=pane.querySelector('#aConf');if(ac)ac.onclick=()=>{a.duv=[];persist(sim);pane.querySelector('#aDuv').remove();draw()};
+  pane.querySelector('#aNome').oninput=e=>{a.nome=e.target.value;persist(sim)};
+  const vazio=()=>!a.nome.trim()&&!a.resp.replace(/\./g,'')&&!(a.pts&&Object.keys(a.pts).length);
+  pane.querySelector('#aProx').onclick=()=>{if(vazio()){sim.alunos=sim.alunos.filter(x=>x!==a)}persist(sim);novaProva(sim)};
+  pane.querySelector('#aOk').onclick=()=>{if(vazio()){sim.alunos=sim.alunos.filter(x=>x!==a)}persist(sim);S.aluno=null;render();window.scrollTo(0,0)};
+  pane.querySelector('#aDel').onclick=()=>{if(!vazio()&&!confirm('Excluir esta prova corrigida?'))return;sim.alunos=sim.alunos.filter(x=>x!==a);persist(sim);S.aluno=null;render()};
+}
+
+/* --- resultados --- */
+function paneRes(pane,sim){
+  const al=sim.alunos.filter(a=>a.nome.trim()||a.resp.replace(/\./g,'')||(a.pts&&Object.keys(a.pts).length));
+  if(!al.length){pane.innerHTML=`<div class="card empty muted">Os resultados aparecem aqui assim que você corrigir a primeira prova.</div>`;return}
+  const rows=al.map(a=>({a,s:score(sim,a.resp,a.pts)})).sort((x,y)=>y.s.nota-x.s.nota||x.a.nome.localeCompare(y.a.nome,'pt-BR'));
+  const notas=rows.map(r=>r.s.nota),media=notas.reduce((x,y)=>x+y,0)/notas.length;
+  const qs=[];for(let i=0;i<sim.nq;i++){
+    if(isDisc(sim,i)){const w=peso(sim,i),com=al.filter(a=>temPts(a.pts,i)),soma=com.reduce((x,a)=>x+Math.min(w,+a.pts[i]||0),0);
+      qs.push({i,disc:true,w,n:com.length,media:com.length?soma/com.length:0,pct:(com.length&&w)?soma/com.length/w*100:null});continue}
+    const g=sim.gab[i],an=sim.anul.includes(i);const cnt={};let ok=0;
+    al.forEach(a=>{const r=a.resp[i]||'.';cnt[r]=(cnt[r]||0)+1;if(r===g)ok++});
+    qs.push({i,g,an,cnt,pct:(an||!g||g==='.')?null:ok/al.length*100});
+  }
+  const dificeis=qs.filter(q=>q.pct!==null).sort((x,y)=>x.pct-y.pct).slice(0,3).filter(q=>q.pct<60);
+  pane.innerHTML=`
+  <div class="stats">
+    <div class="stat"><b>${al.length}</b><span>provas</span></div>
+    <div class="stat"><b>${fmt(media)}</b><span>média</span></div>
+    <div class="stat"><b>${fmt(Math.max(...notas))}</b><span>maior nota</span></div>
+    <div class="stat"><b>${fmt(Math.min(...notas))}</b><span>menor nota</span></div>
+  </div>
+  ${rows.some(r=>r.s.pend)?`<p class="warn" style="margin-top:12px">${rows.filter(r=>r.s.pend).length} ${rows.filter(r=>r.s.pend).length===1?'prova ainda está':'provas ainda estão'} sem a nota de alguma dissertativa. Essas notas estão parciais.</p>`:''}
+  ${dificeis.length?`<p class="warn" style="margin-top:12px">Questões que mais derrubaram a turma: ${dificeis.map(q=>`${q.i+1} (${Math.round(q.pct)}% ${q.disc?'dos pontos':'de acerto'})`).join(', ')}.</p>`:''}
+  <h2 style="font-size:1.1rem;margin:22px 0 6px">Classificação</h2>
+  <div class="card" style="padding:4px 12px;overflow-x:auto"><table class="rank"><tbody>
+    ${rows.map((r,k)=>`<tr><td>${k+1}º</td><td>${esc(r.a.nome||'Sem nome')}</td><td class="r muted small">${fmtN(r.s.pt)}/${fmtN(r.s.tot)} pts</td><td class="r"><span class="pill">${fmt(r.s.nota)}</span></td></tr>`).join('')}
+  </tbody></table></div>
+  <h2 style="font-size:1.1rem;margin:22px 0 2px">Acerto por questão</h2>
+  <p class="hint" style="margin:0 0 8px">Toque numa questão objetiva para ver quantos marcaram cada alternativa. Nas dissertativas, a barra mostra a média dos pontos.</p>
+  <div class="card" style="padding:4px 12px" id="qList">
+    ${qs.map(q=>{
+      if(q.disc&&q.pct===null)return `<div class="qa" style="cursor:default"><span class="qn">${q.i+1}</span><span class="small muted">dissertativa sem notas lançadas</span><span></span></div>`;
+      if(q.pct===null)return `<div class="qa" style="cursor:default"><span class="qn">${q.i+1}</span><span class="small muted">${q.an?'anulada':'sem gabarito'}</span><span></span></div>`;
+      if(q.disc){const lvl=q.pct<40?'low':q.pct<70?'mid':'';return `<div class="qa ${lvl}" style="cursor:default"><span class="qn">${q.i+1}</span><span class="bar"><i style="width:${q.pct}%"></i></span><span class="small" style="text-align:right">${fmtN(q.media)}/${fmtN(q.w)}</span></div>`}
+      const lvl=q.pct<40?'low':q.pct<70?'mid':'';
+      const open=S.openQ===q.i;
+      let dist='';if(open){dist=`<div class="dist">${LETTERS.slice(0,sim.na).split('').map(L=>`<span class="${L===q.g?'k':''}">${L}: ${q.cnt[L]||0}</span>`).join('')}<span>em branco: ${q.cnt['.']||0}</span></div>`}
+      return `<button class="qa ${lvl}" data-qa="${q.i}" aria-expanded="${open}"><span class="qn">${q.i+1}</span><span class="bar"><i style="width:${q.pct}%"></i></span><span class="small" style="text-align:right">${Math.round(q.pct)}%</span>${dist}</button>`}).join('')}
+  </div>
+  <div class="actions"><button class="btn ghost" id="csv">Baixar planilha (CSV)</button></div>`;
+  pane.querySelectorAll('[data-qa]').forEach(b=>b.onclick=()=>{const i=+b.dataset.qa;S.openQ=S.openQ===i?null:i;paneRes(pane,sim)});
+  const csvBtn=pane.querySelector('#csv');
+  if(!downloads)csvBtn.style.display='none';
+  csvBtn.onclick=async()=>{
+    const q=v=>'"'+String(v).replace(/"/g,'""')+'"';
+    const head=['Posição','Aluno','Acertos objetivas','Objetivas válidas','Pontos','Total de pontos','Nota'].concat(Array.from({length:sim.nq},(_,i)=>'Q'+(i+1)+(isDisc(sim,i)?' (dissertativa)':'')));
+    const lines=[head.map(q).join(';'),['','GABARITO','','','','','',...Array.from({length:sim.nq},(_,i)=>isDisc(sim,i)?'':sim.anul.includes(i)?'anulada':(sim.gab[i]==='.'?'':sim.gab[i]))].map(q).join(';'),
+      ['','PESO','','','','','',...Array.from({length:sim.nq},(_,i)=>fmtN(peso(sim,i)))].map(q).join(';')];
+    rows.forEach((r,k)=>lines.push([k+1,r.a.nome||'Sem nome',r.s.ac,r.s.val,fmtN(r.s.pt),fmtN(r.s.tot),fmt(r.s.nota),...Array.from({length:sim.nq},(_,i)=>isDisc(sim,i)?(temPts(r.a.pts,i)?fmtN(+r.a.pts[i]):''):(r.a.resp[i]==='.'||!r.a.resp[i]?'':r.a.resp[i]))].map(q).join(';')));
+    const nome=(sim.nome.normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/[^\w-]+/g,'-').replace(/^-|-$/g,'')||'simulado')+'.csv';
+    try{await downloads.save({filename:nome,data:'\ufeff'+lines.join('\r\n')})}
+    catch(e){if(e&&e.code!=='declined')saveEl.textContent='Não foi possível baixar agora.'}
+  };
+}
+
+/* ---------- início ---------- */
+(async function(){
+  const use=n=>(window.claude&&window.claude.use)?window.claude.use(n).catch(()=>null):Promise.resolve(null);
+  [store,downloads,sample]=await Promise.all([initStore(),use('downloads'),use('sample')]);
+  if(sample){try{const L=await sample.limits();imgLimits=(L&&L.images)||null}catch(e){imgLimits=null}}
+  try{
+    const list=await store.list();
+    S.sims=list.filter(s=>s&&s.nq).map(s=>Object.assign({anul:[],alunos:[],na:5,max:10},s));
+  }catch(e){S.sims=[];saveEl.textContent='Não foi possível carregar os dados salvos.'}
+  render();
+})();
+})();
+</script>
+</body>
+</html>

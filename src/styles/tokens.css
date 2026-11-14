@@ -1,0 +1,115 @@
+/* Design tokens — identidade UNIRP */
+:root {
+  --bg: #f7f7f7;
+  --surface: #ffffff;
+  --surface2: #f2f2f2;
+  --ink: #333333;
+  --muted: #555555;
+  --line: #dddddd;
+  --navy: #333333;
+  --teal: #ff0000;
+  --orange: #c27025;
+  --ok: #1e8a55;
+  --okbg: #e3f4ea;
+  --mid: #b7791f;
+  --midbg: #fbf0dc;
+  --bad: #b00000;
+  --badbg: #fbe5e2;
+  --onaccent: #ffffff;
+  --red: #ff0000;
+  --red-soft: #ffe5e5;
+
+  /* aliases usados por simulados (mesmo sistema) */
+  --paper: var(--bg);
+  --sheet: var(--surface);
+  --text: var(--ink);
+  --green: var(--ok);
+  --green-soft: var(--okbg);
+  --amber: var(--mid);
+  --amber-soft: var(--midbg);
+  --ink-soft: var(--red-soft);
+  --accent: var(--red);
+
+  --font-body: 'Inter', 'Open Sans', system-ui, sans-serif;
+  --font-ui: 'Rubik', system-ui, sans-serif;
+  --font-display: 'Montserrat', 'Rubik', system-ui, sans-serif;
+
+  --radius-sm: 6px;
+  --radius: 8px;
+  --radius-md: 12px;
+  --radius-lg: 16px;
+  --radius-pill: 999px;
+
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 20px;
+  --space-6: 24px;
+
+  --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.04);
+  --shadow-md: 0 12px 32px rgba(0, 0, 0, 0.14);
+  --touch: 44px;
+
+  --content-max: 1040px;
+  --sim-max: 1040px;
+
+  box-sizing: border-box;
+  padding-top: env(safe-area-inset-top, 0px);
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+  color-scheme: light;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme='light']) {
+    --bg: #161616;
+    --surface: #1f1f1f;
+    --surface2: #2a2a2a;
+    --ink: #f2f2f2;
+    --muted: #b0b0b0;
+    --line: #3a3a3a;
+    --navy: #444444;
+    --teal: #ff3b3b;
+    --orange: #e39a55;
+    --ok: #4cc98a;
+    --okbg: #173527;
+    --mid: #e6b45c;
+    --midbg: #3a2e16;
+    --bad: #ff6b6b;
+    --badbg: #3d1e1b;
+    --onaccent: #ffffff;
+    --red: #ff3b3b;
+    --red-soft: #3a1515;
+    color-scheme: dark;
+  }
+  :root:not([data-theme='light']) .brand-logo,
+  :root:not([data-theme='light']) .logo img {
+    filter: brightness(1.05);
+  }
+}
+
+:root[data-theme='dark'] {
+  --bg: #161616;
+  --surface: #1f1f1f;
+  --surface2: #2a2a2a;
+  --ink: #f2f2f2;
+  --muted: #b0b0b0;
+  --line: #3a3a3a;
+  --navy: #444444;
+  --teal: #ff3b3b;
+  --orange: #e39a55;
+  --ok: #4cc98a;
+  --okbg: #173527;
+  --mid: #e6b45c;
+  --midbg: #3a2e16;
+  --bad: #ff6b6b;
+  --badbg: #3d1e1b;
+  --onaccent: #ffffff;
+  --red: #ff3b3b;
+  --red-soft: #3a1515;
+  color-scheme: dark;
+}
+:root[data-theme='dark'] .brand-logo,
+:root[data-theme='dark'] .logo img {
+  filter: brightness(1.05);
+}
